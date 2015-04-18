@@ -34,6 +34,7 @@ type Application struct {
 	Context          *twodee.Context
 	State            *State
 	GameEventHandler *twodee.GameEventHandler
+	AudioSystem      *AudioSystem
 }
 
 func NewApplication() (app *Application, err error) {
@@ -46,6 +47,7 @@ func NewApplication() (app *Application, err error) {
 		counter          = twodee.NewCounter()
 		state            = NewState()
 		gameEventHandler = twodee.NewGameEventHandler(NumGameEventTypes)
+		audioSystem      *AudioSystem
 	)
 	if context, err = twodee.NewContext(); err != nil {
 		return
@@ -67,6 +69,10 @@ func NewApplication() (app *Application, err error) {
 		return
 	}
 	layers.Push(gamelayer)
+	if audioSystem, err = NewAudioSystem(app); err != nil {
+		return
+	}
+	app.AudioSystem = audioSystem
 	fmt.Printf("OpenGL version: %s\n", context.OpenGLVersion)
 	fmt.Printf("Shader version: %s\n", context.ShaderVersion)
 	return
@@ -85,6 +91,7 @@ func (a *Application) Update(elapsed time.Duration) {
 func (a *Application) Delete() {
 	a.layers.Delete()
 	a.Context.Delete()
+	a.AudioSystem.Delete()
 }
 
 func (a *Application) ProcessEvents() {

@@ -60,6 +60,7 @@ func (l *GameLayer) Reset() (err error) {
 	if err = l.loadSpritesheet(); err != nil {
 		return
 	}
+	l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayMusic))
 	return
 }
 
