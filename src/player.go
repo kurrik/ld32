@@ -55,7 +55,7 @@ func (p *Player) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 }
 
 func (p *Player) Update(elapsed time.Duration) {
-	if (p.Dx != 0 || p.Dy != 0) {
+	if p.Dx != 0 || p.Dy != 0 {
 		p.move(mgl32.Vec2{p.Dx, p.Dy})
 	}
 	p.AnimatingEntity.Update(elapsed)
