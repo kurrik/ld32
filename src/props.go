@@ -16,7 +16,6 @@ package main
 
 import (
 	"../lib/twodee"
-	"fmt"
 	"sort"
 )
 
@@ -34,7 +33,6 @@ func NewStaticProp(x, y float32, sheet *twodee.Spritesheet, name string) *Static
 	var (
 		frame = sheet.GetFrame(name) // Ugh
 	)
-	fmt.Printf("Frame width: %v Frame height: %v\n", frame.Width, frame.Height)
 	return &StaticProp{
 		Entity: twodee.NewBaseEntity(x, y, frame.Width, frame.Height, 0.0, 0),
 		Name:   name,
