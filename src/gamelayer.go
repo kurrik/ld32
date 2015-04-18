@@ -164,13 +164,15 @@ func (l *GameLayer) handleMovement(evt *twodee.KeyEvent) {
 	}
 	switch evt.Code {
 	case twodee.KeyDown:
-		l.level.Player.Dy = -value
+		l.level.Player.MoveY(-value)
 	case twodee.KeyLeft:
-		l.level.Player.Dx = -value
+		l.level.Player.MoveX(-value)
 	case twodee.KeyRight:
-		l.level.Player.Dx = value
+		l.level.Player.MoveX(value)
 	case twodee.KeyUp:
-		l.level.Player.Dy = value
+		l.level.Player.MoveY(value)
+	case twodee.KeyZ:
+		l.level.Player.Roll()
 	}
 }
 

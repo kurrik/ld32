@@ -44,18 +44,22 @@ var PlayerAnimations = map[PlayerState][]int{
 	Walking | Down:   []int{6, 7},
 	Walking | Left:   []int{8, 9},
 	Walking | Right:  []int{8, 9},
-	Rolling | Up:     []int{10, 11, 12, 13},
-	Rolling | Down:   []int{10, 11, 12, 13},
-	Rolling | Left:   []int{10, 11, 12, 13},
-	Rolling | Right:  []int{10, 11, 12, 13},
+	Rolling | Up:     []int{10, 11, 12, 13, 10, 11, 12, 13},
+	Rolling | Down:   []int{10, 11, 12, 13, 10, 11, 12, 13},
+	Rolling | Left:   []int{10, 11, 12, 13, 10, 11, 12, 13},
+	Rolling | Right:  []int{10, 11, 12, 13, 10, 11, 12, 13},
 }
 
 type Player struct {
 	*twodee.AnimatingEntity
-	Dx    float32
-	Dy    float32
-	speed float32
-	State PlayerState
+	dx        float32
+	dy        float32
+	rolldx    float32
+	rolldy    float32
+	speed     float32
+	rollspeed float32
+	rolling   bool
+	State     PlayerState
 }
 
 func NewPlayer() *Player {
@@ -65,10 +69,12 @@ func NewPlayer() *Player {
 			twodee.Step10Hz,
 			PlayerAnimations[Standing|Up],
 		),
-		Dx:    0.0,
-		Dy:    0.0,
-		speed: 0.05,
-		State: Standing | Up,
+		dx:        0.0,
+		dy:        0.0,
+		speed:     0.05,
+		rollspeed: 0.10,
+		rolling:   false,
+		State:     Standing | Up,
 	}
 }
 
@@ -92,26 +98,32 @@ func (p *Player) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 }
 
 func (p *Player) Update(elapsed time.Duration) {
-	if p.Dx != 0 || p.Dy != 0 {
+	var (
+		isMoving = p.dx != 0 || p.dy != 0
+	)
+	if !p.rolling && isMoving {
 		var (
-			magX = math.Abs(float64(p.Dx))
-			magY = math.Abs(float64(p.Dy))
+			magX = math.Abs(float64(p.dx))
+			magY = math.Abs(float64(p.dy))
 		)
 		p.swapState(Rolling|Standing, Walking)
 		if magX > magY {
-			if p.Dx > 0 {
+			if p.dx > 0 {
 				p.swapState(Left|Up|Down, Right)
 			} else {
 				p.swapState(Up|Right|Down, Left)
 			}
 		} else {
-			if p.Dy > 0 {
+			if p.dy > 0 {
 				p.swapState(Left|Right|Down, Up)
 			} else {
 				p.swapState(Left|Up|Right, Down)
 			}
 		}
-		p.move(mgl32.Vec2{p.Dx, p.Dy})
+		p.move(mgl32.Vec2{p.dx, p.dy}.Normalize().Mul(p.speed))
+	} else if p.rolling && isMoving {
+		p.swapState(Walking|Standing, Rolling)
+		p.move(mgl32.Vec2{p.rolldx, p.rolldy}.Normalize().Mul(p.rollspeed))
 	} else {
 		p.swapState(Rolling|Walking, Standing)
 	}
@@ -120,11 +132,25 @@ func (p *Player) Update(elapsed time.Duration) {
 
 func (p *Player) move(vec mgl32.Vec2) {
 	pos := p.Pos()
-	vec = vec.Normalize().Mul(p.speed)
 	p.MoveTo(twodee.Pt(pos.X+vec[0], pos.Y+vec[1]))
 }
 
+func (p *Player) MoveX(mag float32) {
+	p.dx = mag
+}
+
+func (p *Player) MoveY(mag float32) {
+	p.dy = mag
+}
+
 func (p *Player) Roll() {
+	p.rolling = true
+	p.rolldx = p.dx
+	p.rolldy = p.dy
+	p.SetCallback(func() {
+		p.swapState(Walking|Rolling, Standing)
+		p.rolling = false
+	})
 }
 
 func (p *Player) remState(state PlayerState) {
@@ -141,11 +167,8 @@ func (p *Player) swapState(rem, add PlayerState) {
 
 func (p *Player) setState(state PlayerState) {
 	if state != p.State {
-		fmt.Printf("Setting new state: %v\n", state)
 		p.State = state
-		fmt.Printf("Frames: %v\n", PlayerAnimations)
 		if frames, ok := PlayerAnimations[p.State]; ok {
-			fmt.Printf("Setting frames: %v\n", frames)
 			p.SetFrames(frames)
 		}
 	}
