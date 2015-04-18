@@ -31,6 +31,7 @@ type GameLayer struct {
 	camera        *twodee.Camera
 	sprite        *twodee.SpriteRenderer
 	batch         *twodee.BatchRenderer
+	effects       *EffectsRenderer
 	app           *Application
 	spritesheet   *twodee.Spritesheet
 	spritetexture *twodee.Texture
@@ -62,6 +63,9 @@ func (l *GameLayer) Reset() (err error) {
 	if l.sprite, err = twodee.NewSpriteRenderer(l.camera); err != nil {
 		return
 	}
+	if l.effects, err = NewEffectsRenderer(320, 320, 1.0); err != nil {
+		return
+	}
 	if err = l.loadSpritesheet(); err != nil {
 		return
 	}
@@ -86,10 +90,15 @@ func (l *GameLayer) Delete() {
 		l.spritetexture.Delete()
 		l.spritetexture = nil
 	}
+	if l.effects != nil {
+		l.effects.Delete()
+		l.effects = nil
+	}
 }
 
 func (l *GameLayer) Render() {
 	if l.level != nil {
+		l.effects.Bind()
 		l.batch.Bind()
 		if err := l.batch.Draw(l.level.Background, 0, 0, 0); err != nil {
 			panic(err)
@@ -100,6 +109,8 @@ func (l *GameLayer) Render() {
 			l.level.Player.SpriteConfig(l.spritesheet),
 		})
 		l.spritetexture.Unbind()
+		l.effects.Unbind()
+		l.effects.Draw()
 	}
 }
 
@@ -180,7 +191,10 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			} else {
 				l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PauseMusic))
 			}
+		case twodee.KeyC:
+			l.effects.Color = l.effects.Color.Add(mgl32.Vec3{0.1, 0.0, 0.0})
 		}
+
 	}
 	return true
 }
