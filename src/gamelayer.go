@@ -115,6 +115,7 @@ func (l *GameLayer) Render() {
 }
 
 func (l *GameLayer) Update(elapsed time.Duration) {
+	l.checkKeys()
 	if l.shake != nil {
 		l.shake.Update(elapsed)
 	}
@@ -175,7 +176,7 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 	case *twodee.MouseButtonEvent:
 		break
 	case *twodee.KeyEvent:
-		l.handleMovement(event)
+		//l.handleMovement(event)
 		if event.Type == twodee.Release {
 			break
 		}
@@ -199,23 +200,30 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 	return true
 }
 
-func (l *GameLayer) handleMovement(evt *twodee.KeyEvent) {
+func (l *GameLayer) checkKeys() {
 	var (
-		value = float32(1.0)
+		events         = l.app.Context.Events
+		down           = events.GetKey(twodee.KeyDown) == twodee.Press
+		up             = events.GetKey(twodee.KeyUp) == twodee.Press
+		left           = events.GetKey(twodee.KeyLeft) == twodee.Press
+		right          = events.GetKey(twodee.KeyRight) == twodee.Press
+		x      float32 = 0.0
+		y      float32 = 0.0
 	)
-	if evt.Type == twodee.Release {
-		value = float32(0.0)
+	switch {
+	case down && !up:
+		y = -1.0
+	case up && !down:
+		y = 1.0
 	}
-	switch evt.Code {
-	case twodee.KeyDown:
-		l.level.Player.MoveY(-value)
-	case twodee.KeyLeft:
-		l.level.Player.MoveX(-value)
-	case twodee.KeyRight:
-		l.level.Player.MoveX(value)
-	case twodee.KeyUp:
-		l.level.Player.MoveY(value)
+	switch {
+	case left && !right:
+		x = -1.0
+	case right && !left:
+		x = 1.0
 	}
+	l.level.Player.MoveX(x)
+	l.level.Player.MoveY(y)
 }
 
 func (l *GameLayer) loadSpritesheet() (err error) {
