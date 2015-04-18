@@ -15,19 +15,72 @@
 package main
 
 import (
+	twodee "../lib/twodee"
+	"github.com/kurrik/tmxgo"
+	"io/ioutil"
+	"path/filepath"
 	"time"
 )
 
 type Level struct {
-	Player *Player
+	Player     *Player
+	Background *twodee.Batch
 }
 
-func NewLevel() *Level {
-	return &Level{
+func NewLevel(mapPath string) (level *Level, err error) {
+	level = &Level{
 		Player: NewPlayer(),
 	}
+	if err = level.loadMap(mapPath); err != nil {
+		return
+	}
+	return
 }
 
 func (l *Level) Update(elapsed time.Duration) {
 	l.Player.Update(elapsed)
+}
+
+func (l *Level) loadMap(path string) (err error) {
+	var (
+		data        []byte
+		m           *tmxgo.Map
+		tiles       []*tmxgo.Tile
+		textiles    []twodee.TexturedTile
+		texturepath string
+	)
+	if data, err = ioutil.ReadFile(path); err != nil {
+		return
+	}
+	if m, err = tmxgo.ParseMapString(string(data)); err != nil {
+		return
+	}
+	if tiles, err = m.TilesFromLayerName("ground"); err != nil {
+		return
+	}
+	if texturepath, err = tmxgo.GetTexturePath(tiles); err != nil {
+		return
+	}
+	textiles = make([]twodee.TexturedTile, len(tiles))
+	for i, t := range tiles {
+		textiles[i] = t
+	}
+	var (
+		tilem = twodee.TileMetadata{
+			Path:      filepath.Join(filepath.Dir(path), texturepath),
+			PxPerUnit: PxPerUnit,
+		}
+	)
+	for _, objgroup := range m.ObjectGroups {
+		for _, obj := range objgroup.Objects {
+			if obj.Name == "start" {
+				l.Player.MoveTo(twodee.Pt(
+					float32(obj.X)/PxPerUnit,
+					float32(m.Height*m.TileHeight-obj.Y)/PxPerUnit, // Height is reversed
+				))
+			}
+		}
+	}
+	l.Background, err = twodee.LoadBatch(textiles, tilem)
+	return
 }
