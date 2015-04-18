@@ -45,3 +45,8 @@ func (p *Player) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 		Frame: frame.Frame,
 	}
 }
+
+func (p *Player) Move(dx, dy float32) {
+	pos := p.Pos()
+	p.MoveTo(twodee.Pt(pos.X+dx, pos.Y+dy))
+}

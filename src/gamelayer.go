@@ -28,6 +28,7 @@ type GameLayer struct {
 	cameraBounds  twodee.Rectangle
 	camera        *twodee.Camera
 	sprite        *twodee.SpriteRenderer
+	batch         *twodee.BatchRenderer
 	app           *Application
 	spritesheet   *twodee.Spritesheet
 	spritetexture *twodee.Texture
@@ -46,7 +47,6 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 		camera:       camera,
 		cameraBounds: cameraBounds,
 		app:          app,
-		level:        NewLevel(),
 	}
 	err = layer.Reset()
 	return
@@ -54,16 +54,27 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 
 func (l *GameLayer) Reset() (err error) {
 	l.Delete()
+	if l.batch, err = twodee.NewBatchRenderer(l.camera); err != nil {
+		return
+	}
 	if l.sprite, err = twodee.NewSpriteRenderer(l.camera); err != nil {
 		return
 	}
 	if err = l.loadSpritesheet(); err != nil {
 		return
 	}
+	if l.level, err = NewLevel("resources/background.tmx"); err != nil {
+		return
+	}
+	l.updateCamera(1.0)
 	return
 }
 
 func (l *GameLayer) Delete() {
+	if l.batch != nil {
+		l.batch.Delete()
+		l.batch = nil
+	}
 	if l.sprite != nil {
 		l.sprite.Delete()
 		l.sprite = nil
@@ -76,6 +87,11 @@ func (l *GameLayer) Delete() {
 
 func (l *GameLayer) Render() {
 	if l.level != nil {
+		l.batch.Bind()
+		if err := l.batch.Draw(l.level.Background, 0, 0, 0); err != nil {
+			panic(err)
+		}
+		l.batch.Unbind()
 		l.spritetexture.Bind()
 		l.sprite.Draw([]twodee.SpriteConfig{
 			l.level.Player.SpriteConfig(l.spritesheet),
@@ -85,8 +101,34 @@ func (l *GameLayer) Render() {
 }
 
 func (l *GameLayer) Update(elapsed time.Duration) {
+	l.updateCamera(10.0)
 	if l.level != nil {
 		l.level.Update(elapsed)
+	}
+}
+
+func (l *GameLayer) updateCamera(scale float32) {
+	var (
+		pPt     = l.level.Player.Pos()
+		cRect   = l.camera.WorldBounds
+		cWidth  = cRect.Max.X - cRect.Min.X
+		cHeight = cRect.Max.Y - cRect.Min.Y
+		cMidX   = cRect.Min.X + (cWidth / 2.0)
+		cMidY   = cRect.Min.Y + (cHeight / 2.0)
+		pPctX   = (pPt.X - cRect.Min.X) / cWidth
+		pPctY   = (pPt.Y - cRect.Min.Y) / cHeight
+		dX      = (pPt.X - cMidX) / scale
+		dY      = (pPt.Y - cMidY) / scale
+		bounds  twodee.Rectangle
+	)
+	if pPctX < 0.3 || pPctX > 0.7 || pPctY < 0.3 || pPctY > 0.7 {
+		bounds = twodee.Rect(
+			cRect.Min.X+dX,
+			cRect.Min.Y+dY,
+			cRect.Max.X+dX,
+			cRect.Max.Y+dY,
+		)
+		l.camera.SetWorldBounds(bounds)
 	}
 }
 
@@ -101,6 +143,14 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			break
 		}
 		switch event.Code {
+		case twodee.KeyDown:
+			l.level.Player.Move(0.0, -1.0)
+		case twodee.KeyLeft:
+			l.level.Player.Move(-1.0, 0.0)
+		case twodee.KeyRight:
+			l.level.Player.Move(1.0, 0.0)
+		case twodee.KeyUp:
+			l.level.Player.Move(0.0, 1.0)
 		case twodee.KeyEscape:
 			l.app.State.Exit = true
 		}
