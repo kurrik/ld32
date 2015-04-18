@@ -16,14 +16,22 @@ package main
 
 import (
 	twodee "../lib/twodee"
+	"io/ioutil"
 	"time"
 )
 
+const (
+	PxPerUnit = 32
+)
+
 type GameLayer struct {
-	cameraBounds twodee.Rectangle
-	camera       *twodee.Camera
-	sprite       *twodee.SpriteRenderer
-	app          *Application
+	cameraBounds  twodee.Rectangle
+	camera        *twodee.Camera
+	sprite        *twodee.SpriteRenderer
+	app           *Application
+	spritesheet   *twodee.Spritesheet
+	spritetexture *twodee.Texture
+	level         *Level
 }
 
 func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, err error) {
@@ -38,16 +46,18 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 		camera:       camera,
 		cameraBounds: cameraBounds,
 		app:          app,
+		level:        NewLevel(),
 	}
 	err = layer.Reset()
 	return
 }
 
 func (l *GameLayer) Reset() (err error) {
-	if l.sprite != nil {
-		l.sprite.Delete()
-	}
+	l.Delete()
 	if l.sprite, err = twodee.NewSpriteRenderer(l.camera); err != nil {
+		return
+	}
+	if err = l.loadSpritesheet(); err != nil {
 		return
 	}
 	return
@@ -58,12 +68,26 @@ func (l *GameLayer) Delete() {
 		l.sprite.Delete()
 		l.sprite = nil
 	}
+	if l.spritetexture != nil {
+		l.spritetexture.Delete()
+		l.spritetexture = nil
+	}
 }
 
 func (l *GameLayer) Render() {
+	if l.level != nil {
+		l.spritetexture.Bind()
+		l.sprite.Draw([]twodee.SpriteConfig{
+			l.level.Player.SpriteConfig(l.spritesheet),
+		})
+		l.spritetexture.Unbind()
+	}
 }
 
 func (l *GameLayer) Update(elapsed time.Duration) {
+	if l.level != nil {
+		l.level.Update(elapsed)
+	}
 }
 
 func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
@@ -82,4 +106,26 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 		}
 	}
 	return true
+}
+
+func (l *GameLayer) loadSpritesheet() (err error) {
+	var (
+		data []byte
+	)
+	if data, err = ioutil.ReadFile("resources/spritesheet.json"); err != nil {
+		return
+	}
+	if l.spritesheet, err = twodee.ParseTexturePackerJSONArrayString(
+		string(data),
+		PxPerUnit,
+	); err != nil {
+		return
+	}
+	if l.spritetexture, err = twodee.LoadTexture(
+		"resources/"+l.spritesheet.TexturePath,
+		twodee.Nearest,
+	); err != nil {
+		return
+	}
+	return
 }

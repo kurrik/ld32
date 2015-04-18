@@ -9,7 +9,7 @@ mkdir -p tmp
 build_aesprite() {
   aseprite \
     --batch assets/${1}.ase \
-    --save-as tmp/${1}_01.png
+    --save-as tmp/${1}_00.png
 }
 
 build_aesprite numbered_squares

@@ -1,7 +1,7 @@
 {"frames": [
 
 {
-	"filename": "numbered_squares_01",
+	"filename": "numbered_squares_00",
 	"frame": {"x":2,"y":2,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -10,7 +10,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_02",
+	"filename": "numbered_squares_01",
 	"frame": {"x":36,"y":2,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -19,7 +19,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_03",
+	"filename": "numbered_squares_02",
 	"frame": {"x":70,"y":2,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -28,7 +28,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_04",
+	"filename": "numbered_squares_03",
 	"frame": {"x":2,"y":36,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -37,7 +37,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_05",
+	"filename": "numbered_squares_04",
 	"frame": {"x":36,"y":36,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -46,7 +46,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_06",
+	"filename": "numbered_squares_05",
 	"frame": {"x":70,"y":36,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -55,7 +55,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_07",
+	"filename": "numbered_squares_06",
 	"frame": {"x":2,"y":70,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -64,7 +64,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_08",
+	"filename": "numbered_squares_07",
 	"frame": {"x":36,"y":70,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -73,7 +73,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_09",
+	"filename": "numbered_squares_08",
 	"frame": {"x":70,"y":70,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -82,7 +82,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_10",
+	"filename": "numbered_squares_09",
 	"frame": {"x":2,"y":104,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -91,7 +91,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_11",
+	"filename": "numbered_squares_10",
 	"frame": {"x":36,"y":104,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -100,7 +100,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_12",
+	"filename": "numbered_squares_11",
 	"frame": {"x":70,"y":104,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -109,7 +109,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_13",
+	"filename": "numbered_squares_12",
 	"frame": {"x":2,"y":138,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -118,7 +118,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_14",
+	"filename": "numbered_squares_13",
 	"frame": {"x":2,"y":172,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -127,7 +127,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_15",
+	"filename": "numbered_squares_14",
 	"frame": {"x":2,"y":206,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -136,7 +136,7 @@
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
-	"filename": "numbered_squares_16",
+	"filename": "numbered_squares_15",
 	"frame": {"x":36,"y":138,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
@@ -151,6 +151,6 @@
 	"format": "RGBA8888",
 	"size": {"w":128,"h":256},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:59fdd720779ad8dfa7d611ee5c925ac1:f9a6155b81db25c645490447853a6c2a:729adc6043343cfda41c447ce8f464d6$"
+	"smartupdate": "$TexturePacker:SmartUpdate:fddbe2db33bd3638cf36b4d056a7fb67:f9a6155b81db25c645490447853a6c2a:729adc6043343cfda41c447ce8f464d6$"
 }
 }
