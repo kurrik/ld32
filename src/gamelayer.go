@@ -15,7 +15,8 @@
 package main
 
 import (
-	twodee "../lib/twodee"
+	"../lib/twodee"
+	"fmt"
 	"github.com/go-gl/mathgl/mgl32"
 	"io/ioutil"
 	"time"
@@ -26,6 +27,7 @@ const (
 )
 
 type GameLayer struct {
+	levels        map[string]string
 	shake         *twodee.ContinuousAnimation
 	cameraBounds  twodee.Rectangle
 	camera        *twodee.Camera
@@ -50,6 +52,11 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 		camera:       camera,
 		cameraBounds: cameraBounds,
 		app:          app,
+		levels: map[string]string{
+			"main":  "resources/main.tmx",
+			"boss1": "resources/boss1.tmx",
+			"boss2": "resources/boss2.tmx",
+		},
 	}
 	err = layer.Reset()
 	return
@@ -69,11 +76,23 @@ func (l *GameLayer) Reset() (err error) {
 	if err = l.loadSpritesheet(); err != nil {
 		return
 	}
-	if l.level, err = NewLevel("resources/background.tmx", l.spritesheet); err != nil {
+	l.loadLevel("main")
+	l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayMusic))
+	return
+}
+
+func (l *GameLayer) loadLevel(name string) (err error) {
+	var (
+		path string
+		ok   bool
+	)
+	if path, ok = l.levels[name]; !ok {
+		return fmt.Errorf("Invalid level: %v", name)
+	}
+	if l.level, err = NewLevel(path, l.spritesheet); err != nil {
 		return
 	}
 	l.updateCamera(1.0)
-	l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayMusic))
 	return
 }
 
@@ -192,6 +211,12 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			}
 		case twodee.KeyC:
 			l.effects.Color = l.effects.Color.Add(mgl32.Vec3{0.1, 0.0, 0.0})
+		case twodee.Key0:
+			l.loadLevel("main")
+		case twodee.Key1:
+			l.loadLevel("boss1")
+		case twodee.Key2:
+			l.loadLevel("boss2")
 		}
 
 	}
