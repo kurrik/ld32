@@ -16,6 +16,7 @@ package main
 
 import (
 	twodee "../lib/twodee"
+	"github.com/go-gl/mathgl/mgl32"
 	"io/ioutil"
 	"time"
 )
@@ -25,6 +26,7 @@ const (
 )
 
 type GameLayer struct {
+	shake         *twodee.ContinuousAnimation
 	cameraBounds  twodee.Rectangle
 	camera        *twodee.Camera
 	sprite        *twodee.SpriteRenderer
@@ -67,6 +69,7 @@ func (l *GameLayer) Reset() (err error) {
 		return
 	}
 	l.updateCamera(1.0)
+	l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayMusic))
 	return
 }
 
@@ -101,7 +104,10 @@ func (l *GameLayer) Render() {
 }
 
 func (l *GameLayer) Update(elapsed time.Duration) {
-	l.updateCamera(10.0)
+	if l.shake != nil {
+		l.shake.Update(elapsed)
+	}
+	l.updateCamera(0.05)
 	if l.level != nil {
 		l.level.Update(elapsed)
 	}
@@ -115,21 +121,40 @@ func (l *GameLayer) updateCamera(scale float32) {
 		cHeight = cRect.Max.Y - cRect.Min.Y
 		cMidX   = cRect.Min.X + (cWidth / 2.0)
 		cMidY   = cRect.Min.Y + (cHeight / 2.0)
-		pPctX   = (pPt.X - cRect.Min.X) / cWidth
-		pPctY   = (pPt.Y - cRect.Min.Y) / cHeight
-		dX      = (pPt.X - cMidX) / scale
-		dY      = (pPt.Y - cMidY) / scale
+		pVec    = mgl32.Vec2{pPt.X, pPt.Y}
+		cVec    = mgl32.Vec2{cMidX, cMidY}
+		diff    = pVec.Sub(cVec)
 		bounds  twodee.Rectangle
+		adj     mgl32.Vec2
 	)
-	if pPctX < 0.3 || pPctX > 0.7 || pPctY < 0.3 || pPctY > 0.7 {
-		bounds = twodee.Rect(
-			cRect.Min.X+dX,
-			cRect.Min.Y+dY,
-			cRect.Max.X+dX,
-			cRect.Max.Y+dY,
-		)
-		l.camera.SetWorldBounds(bounds)
+	if diff.Len() > 1 {
+		adj = diff.Mul(scale)
+	} else {
+		adj = mgl32.Vec2{0, 0}
 	}
+	if l.shake != nil {
+		adj[1] += l.shake.Value()
+	}
+	bounds = twodee.Rect(
+		cRect.Min.X+adj[0],
+		cRect.Min.Y+adj[1],
+		cRect.Max.X+adj[0],
+		cRect.Max.Y+adj[1],
+	)
+	l.camera.SetWorldBounds(bounds)
+}
+
+func (l *GameLayer) ShakeCamera() {
+	if l.shake == nil {
+		decay := twodee.SineDecayFunc(
+			time.Duration(500)*time.Millisecond,
+			0.08, // Amplitude
+			4.0,  // Frequency
+			1.0,  // Decay
+		)
+		l.shake = twodee.NewContinuousAnimation(decay)
+	}
+	l.shake.Reset()
 }
 
 func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
@@ -139,23 +164,44 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 	case *twodee.MouseButtonEvent:
 		break
 	case *twodee.KeyEvent:
+		l.handleMovement(event)
 		if event.Type == twodee.Release {
 			break
 		}
 		switch event.Code {
-		case twodee.KeyDown:
-			l.level.Player.Move(0.0, -1.0)
-		case twodee.KeyLeft:
-			l.level.Player.Move(-1.0, 0.0)
-		case twodee.KeyRight:
-			l.level.Player.Move(1.0, 0.0)
-		case twodee.KeyUp:
-			l.level.Player.Move(0.0, 1.0)
-		case twodee.KeyEscape:
+		case twodee.KeyX:
 			l.app.State.Exit = true
+		case twodee.KeyZ:
+			l.level.Player.Roll()
+			l.ShakeCamera()
+		case twodee.KeyM:
+			if twodee.MusicIsPaused() {
+				l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))
+			} else {
+				l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PauseMusic))
+			}
 		}
 	}
 	return true
+}
+
+func (l *GameLayer) handleMovement(evt *twodee.KeyEvent) {
+	var (
+		value = float32(1.0)
+	)
+	if evt.Type == twodee.Release {
+		value = float32(0.0)
+	}
+	switch evt.Code {
+	case twodee.KeyDown:
+		l.level.Player.MoveY(-value)
+	case twodee.KeyLeft:
+		l.level.Player.MoveX(-value)
+	case twodee.KeyRight:
+		l.level.Player.MoveX(value)
+	case twodee.KeyUp:
+		l.level.Player.MoveY(value)
+	}
 }
 
 func (l *GameLayer) loadSpritesheet() (err error) {
