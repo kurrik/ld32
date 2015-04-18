@@ -17,7 +17,7 @@ package main
 import twodee "../lib/twodee"
 
 type Mob struct {
-	detectionRadius ufloat64
+	detectionRadius float32
 }
 
 // MobState is implemented by various states responsible for controlling mobile
