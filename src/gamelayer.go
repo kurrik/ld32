@@ -43,7 +43,7 @@ type GameLayer struct {
 func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, err error) {
 	var (
 		camera       *twodee.Camera
-		cameraBounds = twodee.Rect(-10, -10, 10, 10)
+		cameraBounds = twodee.Rect(-5, -5, 5, 5)
 	)
 	if camera, err = twodee.NewCamera(cameraBounds, winb); err != nil {
 		return

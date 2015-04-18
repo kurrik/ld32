@@ -28,6 +28,8 @@ type Level struct {
 	Background *twodee.Batch
 	Sheet      *twodee.Spritesheet
 	Collisions *twodee.Grid
+	Width      float32
+	Height     float32
 }
 
 func NewLevel(mapPath string, sheet *twodee.Spritesheet) (level *Level, err error) {
@@ -44,7 +46,7 @@ func NewLevel(mapPath string, sheet *twodee.Spritesheet) (level *Level, err erro
 }
 
 func (l *Level) Update(elapsed time.Duration) {
-	l.Player.Update(elapsed)
+	l.Player.Update(elapsed, l)
 }
 
 func (l *Level) loadMap(path string) (err error) {
@@ -62,6 +64,8 @@ func (l *Level) loadMap(path string) (err error) {
 		return
 	}
 	l.Collisions = twodee.NewGrid(m.Width, m.Height)
+	l.Width = float32(m.Width * m.TileWidth) / PxPerUnit
+	l.Height = float32(m.Height * m.TileHeight) / PxPerUnit
 	if tiles, err = m.TilesFromLayerName("collision"); err == nil {
 		// Able to find collision tiles
 		for i, t := range tiles {

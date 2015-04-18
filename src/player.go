@@ -101,7 +101,7 @@ func (p *Player) Bottom() float32 {
 	return p.AnimatingEntity.Bounds().Min.Y
 }
 
-func (p *Player) Update(elapsed time.Duration) {
+func (p *Player) Update(elapsed time.Duration, level *Level) {
 	var (
 		isMoving = p.dx != 0 || p.dy != 0
 	)
@@ -124,18 +124,27 @@ func (p *Player) Update(elapsed time.Duration) {
 				p.swapState(Left|Up|Right, Down)
 			}
 		}
-		p.move(mgl32.Vec2{p.dx, p.dy}.Normalize().Mul(p.speed))
+		p.move(mgl32.Vec2{p.dx, p.dy}.Normalize().Mul(p.speed), level)
 	} else if p.rolling && isMoving {
 		p.swapState(Walking|Standing, Rolling)
-		p.move(mgl32.Vec2{p.rolldx, p.rolldy}.Normalize().Mul(p.rollspeed))
+		p.move(mgl32.Vec2{p.rolldx, p.rolldy}.Normalize().Mul(p.rollspeed), level)
 	} else {
 		p.swapState(Rolling|Walking, Standing)
 	}
 	p.AnimatingEntity.Update(elapsed)
 }
 
-func (p *Player) move(vec mgl32.Vec2) {
-	pos := p.Pos()
+func (p *Player) move(vec mgl32.Vec2, level *Level) {
+	var (
+		bounds = p.Bounds()
+		pos    = p.Pos()
+	)
+	vec = level.Collisions.FixMove(mgl32.Vec4{
+		bounds.Min.X,
+		bounds.Min.Y,
+		bounds.Max.X,
+		bounds.Max.Y,
+	}, vec, 0.5, 0.5)
 	p.MoveTo(twodee.Pt(pos.X+vec[0], pos.Y+vec[1]))
 }
 
