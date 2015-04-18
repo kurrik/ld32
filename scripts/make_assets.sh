@@ -13,6 +13,7 @@ build_aesprite() {
 }
 
 build_aesprite numbered_squares
+cp assets/*.png tmp/
 
 TexturePacker \
   --format json-array \
