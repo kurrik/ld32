@@ -27,3 +27,4 @@ tags
 *.swp
 
 src/resources/.DS_Store
+.DS_Store
