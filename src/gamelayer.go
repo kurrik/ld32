@@ -146,10 +146,16 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			break
 		}
 		switch event.Code {
-		case twodee.KeyZ:
-			l.level.Player.Roll()
-		case twodee.KeyEscape:
+		case twodee.KeyX:
 			l.app.State.Exit = true
+		case twodee.KeyZ:
+			l.level.Player.Roll()			
+		case twodee.KeyM:
+			if twodee.MusicIsPaused() {
+				l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))
+			} else {
+				l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PauseMusic))
+			}
 		}
 	}
 	return true
