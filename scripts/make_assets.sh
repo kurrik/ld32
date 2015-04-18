@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+GITROOT=`git rev-parse --show-toplevel`
+
+cd $GITROOT
+
 mkdir -p tmp
 
 build_aesprite() {
@@ -8,6 +12,7 @@ build_aesprite() {
     --save-as tmp/${1}_01.png
 }
 
+build_aesprite numbered_squares
 
 TexturePacker \
   --format json-array \
@@ -19,3 +24,4 @@ TexturePacker \
   tmp
 
 rm -rf tmp
+cd -
