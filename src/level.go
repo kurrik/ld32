@@ -105,11 +105,11 @@ func (l *Level) loadMap(path string) (err error) {
 					Rect:  l.getObjectBounds(m, obj),
 					Level: obj.Type,
 				})
-			case "temple":
+			case "sprite":
 				l.Props = append(l.Props, NewStaticProp(
 					x, y,
 					l.Sheet,
-					"temple.fw",
+					obj.Type,
 				))
 			case "start":
 				l.Player.MoveTo(twodee.Pt(x, y))
