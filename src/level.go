@@ -16,6 +16,7 @@ package main
 
 import (
 	twodee "../lib/twodee"
+	"fmt"
 	"github.com/kurrik/tmxgo"
 	"io/ioutil"
 	"path/filepath"
@@ -28,8 +29,14 @@ type Level struct {
 	Background *twodee.Batch
 	Sheet      *twodee.Spritesheet
 	Collisions *twodee.Grid
+	Portals    []Portal
 	Width      float32
 	Height     float32
+}
+
+type Portal struct {
+	Rect  twodee.Rectangle
+	Level string
 }
 
 func NewLevel(mapPath string, sheet *twodee.Spritesheet) (level *Level, err error) {
@@ -64,8 +71,8 @@ func (l *Level) loadMap(path string) (err error) {
 		return
 	}
 	l.Collisions = twodee.NewGrid(m.Width, m.Height)
-	l.Width = float32(m.Width * m.TileWidth) / PxPerUnit
-	l.Height = float32(m.Height * m.TileHeight) / PxPerUnit
+	l.Width = float32(m.Width*m.TileWidth) / PxPerUnit
+	l.Height = float32(m.Height*m.TileHeight) / PxPerUnit
 	if tiles, err = m.TilesFromLayerName("collision"); err == nil {
 		// Able to find collision tiles
 		for i, t := range tiles {
@@ -94,6 +101,11 @@ func (l *Level) loadMap(path string) (err error) {
 		for _, obj := range objgroup.Objects {
 			x, y := l.getObjectMiddle(m, obj)
 			switch obj.Name {
+			case "portal":
+				l.Portals = append(l.Portals, Portal{
+					Rect:  l.getObjectBounds(m, obj),
+					Level: obj.Type,
+				})
 			case "temple":
 				l.Props = append(l.Props, NewStaticProp(
 					x, y,
@@ -113,4 +125,23 @@ func (l *Level) getObjectMiddle(m *tmxgo.Map, obj tmxgo.Object) (x float32, y fl
 	x = float32(obj.X+(obj.Width/2.0)) / PxPerUnit
 	y = float32(m.Height*m.TileHeight-obj.Y-(obj.Height/2.0)) / PxPerUnit // Height is reversed
 	return
+}
+
+func (l *Level) getObjectBounds(m *tmxgo.Map, obj tmxgo.Object) twodee.Rectangle {
+	var (
+		x = float32(obj.X) / PxPerUnit
+		y = float32(m.Height*m.TileHeight-obj.Y) / PxPerUnit // Height is reversed
+		w = float32(obj.Width) / PxPerUnit
+		h = float32(obj.Height) / PxPerUnit
+	)
+	return twodee.Rect(x, y-h, x+w, y)
+}
+
+func (l *Level) PortalCollides() (bool, string) {
+	for _, portal := range l.Portals {
+		if portal.Rect.Overlaps(l.Player.Bounds()) {
+			return true, portal.Level
+		}
+	}
+	return false, ""
 }

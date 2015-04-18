@@ -139,6 +139,9 @@ func (l *GameLayer) Update(elapsed time.Duration) {
 	l.updateCamera(0.05)
 	if l.level != nil {
 		l.level.Update(elapsed)
+		if collides, level := l.level.PortalCollides(); collides {
+			l.loadLevel(level)
+		}
 	}
 }
 
