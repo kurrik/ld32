@@ -19,7 +19,10 @@ import (
 )
 
 const (
-	SENTINEL twodee.GameEventType = iota
+	PlayMusic twodee.GameEventType = iota
+	PauseMusic
+	ResumeMusic
+	SENTINEL
 )
 
 const (

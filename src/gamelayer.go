@@ -68,6 +68,7 @@ func (l *GameLayer) Reset() (err error) {
 		return
 	}
 	l.updateCamera(1.0)
+	l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayMusic))
 	return
 }
 
