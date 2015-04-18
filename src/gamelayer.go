@@ -28,17 +28,17 @@ const (
 )
 
 type GameLayer struct {
-	levels        map[string]string
-	shake         *twodee.ContinuousAnimation
-	cameraBounds  twodee.Rectangle
-	camera        *twodee.Camera
-	sprite        *twodee.SpriteRenderer
-	batch         *twodee.BatchRenderer
-	effects       *EffectsRenderer
-	app           *Application
-	spritesheet   *twodee.Spritesheet
-	spritetexture *twodee.Texture
-	level         *Level
+	levels          map[string]string
+	shake           *twodee.ContinuousAnimation
+	cameraBounds    twodee.Rectangle
+	camera          *twodee.Camera
+	sprite          *twodee.SpriteRenderer
+	batch           *twodee.BatchRenderer
+	effects         *EffectsRenderer
+	app             *Application
+	spritesheet     *twodee.Spritesheet
+	spritetexture   *twodee.Texture
+	level           *Level
 	shakeObserverId int
 }
 
@@ -116,7 +116,9 @@ func (l *GameLayer) Delete() {
 		l.effects.Delete()
 		l.effects = nil
 	}
-	l.app.GameEventHandler.RemoveObserver(ShakeCamera, l.shakeObserverId)
+	if l.shakeObserverId != 0 {
+		l.app.GameEventHandler.RemoveObserver(ShakeCamera, l.shakeObserverId)
+	}
 }
 
 func (l *GameLayer) Render() {

@@ -159,6 +159,9 @@ func (p *Player) MoveY(mag float32) {
 }
 
 func (p *Player) Roll() {
+	if p.rolling {
+		return
+	}
 	p.rolling = true
 	p.rolldx = p.dx
 	p.rolldy = p.dy
