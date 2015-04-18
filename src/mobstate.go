@@ -18,6 +18,11 @@ type Mob struct {
 	detectionRadius float32
 }
 
+func (m *Mob) Bored(t float32) bool {
+	// TODO; Mobs never get bored. Probably they should.
+	return false
+}
+
 // MobState is implemented by various states responsible for controlling mobile
 // entities.
 // ExamineWorld examines the current state of the game and determines which
@@ -27,7 +32,7 @@ type MobState interface {
 	// which state the mobile should transition to. It's legal to return
 	// either the current MobState or nil, indicating that the mobile
 	// should transition to a previous state.
-	ExamineWorld(*Mob, *GameLayer) (newState *MobState)
+	ExamineWorld(*Mob, *GameLayer) (newState MobState)
 	// Update should be called each frame and may update values in the
 	// current state or call functions on the mob.
 	Update(*Mob)
@@ -43,11 +48,11 @@ type SearchState struct{}
 
 // ExamineWorld returns HuntState if the player is seen, otherwise the mob
 // continues wandering.
-func (s *SearchState) ExamineWorld(m *Mob, l *GameLayer) *MobState {
+func (s *SearchState) ExamineWorld(m *Mob, l *GameLayer) MobState {
 	if playerSeen(m, l) {
 		return &HuntState{}
 	}
-	return h
+	return s
 }
 
 func (s *SearchState) Update(m *Mob) {
@@ -68,7 +73,7 @@ type HuntState struct {
 
 // ExamineWorld returns the current state if the player is currently seen or
 // the mob is not yet tired of chasing. Otherwise, it returns nil.
-func (h *HuntState) ExamineWorld(m *Mob, l *GameLayer) *MobState {
+func (h *HuntState) ExamineWorld(m *Mob, l *GameLayer) MobState {
 	if playerSeen(m, l) || !m.Bored(h.timeSinceLastContact) {
 		return h
 	}
@@ -78,10 +83,11 @@ func (h *HuntState) ExamineWorld(m *Mob, l *GameLayer) *MobState {
 // Update resets the player's hiding timer if the player is seen, otherwise it
 // increments.
 func (h *HuntState) Update(m *Mob) {
-	if playerSeen(m, l) {
-		h.timeSinceLastContact = 0
-		return
-	}
+	// Maybe this should be in ExamineWorld???
+	//	if playerSeen(m, l) {
+	//		h.timeSinceLastContact = 0
+	//		return
+	//	}
 	h.timeSinceLastContact++
 }
 
@@ -93,7 +99,7 @@ func (h *HuntState) Exit(m *Mob) {
 
 // playerSeen returns true if the player is currently visible to the mob and
 // within its detection radius.
-func playerSeen(m, l) bool {
+func playerSeen(m *Mob, l *GameLayer) bool {
 	// TODO: do something with visibility and detection radius.
 	return true
 }
