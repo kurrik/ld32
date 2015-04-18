@@ -78,22 +78,25 @@ func (l *Level) loadMap(path string) (err error) {
 	)
 	for _, objgroup := range m.ObjectGroups {
 		for _, obj := range objgroup.Objects {
+			x, y := l.getObjectMiddle(m, obj)
 			switch obj.Name {
 			case "temple":
 				l.Props = append(l.Props, NewStaticProp(
-					float32(obj.X)/PxPerUnit,
-					float32(m.Height*m.TileHeight-obj.Y)/PxPerUnit,
+					x, y,
 					l.Sheet,
 					"temple.fw",
 				))
 			case "start":
-				l.Player.MoveTo(twodee.Pt(
-					float32(obj.X)/PxPerUnit,
-					float32(m.Height*m.TileHeight-obj.Y)/PxPerUnit, // Height is reversed
-				))
+				l.Player.MoveTo(twodee.Pt(x, y))
 			}
 		}
 	}
 	l.Background, err = twodee.LoadBatch(textiles, tilem)
+	return
+}
+
+func (l *Level) getObjectMiddle(m *tmxgo.Map, obj tmxgo.Object) (x float32, y float32) {
+	x = float32(obj.X+(obj.Width/2.0)) / PxPerUnit
+	y = float32(m.Height*m.TileHeight-obj.Y-(obj.Height/2.0)) / PxPerUnit // Height is reversed
 	return
 }

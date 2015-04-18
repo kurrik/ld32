@@ -9,7 +9,7 @@
   </data>
  </layer>
  <objectgroup name="meta">
-  <object name="start" x="718" y="1429" width="162" height="108"/>
-  <object name="temple" x="568" y="702" width="450" height="236"/>
+  <object name="start" x="816" y="1357" width="32" height="32"/>
+  <object name="temple" x="689" y="764" width="256" height="128"/>
  </objectgroup>
 </map>
