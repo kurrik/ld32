@@ -146,7 +146,7 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			break
 		}
 		switch event.Code {
-		case twodee.KeyEscape:
+		case twodee.KeyX:
 			l.app.State.Exit = true
 		case twodee.KeyM:
 			if twodee.MusicIsPaused() {
