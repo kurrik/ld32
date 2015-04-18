@@ -14,10 +14,18 @@
 
 package main
 
-import "time"
+import (
+	"time"
+
+	"../lib/twodee"
+	"github.com/go-gl/mathgl/mgl32"
+)
 
 type Mob interface {
 	Bored(time.Duration) bool
+	SetFrames(f []int)
+	Detect(dist float32) bool
+	Pos() twodee.Point
 }
 
 type Mobile struct {
@@ -27,6 +35,10 @@ type Mobile struct {
 
 func (m *Mobile) Bored(d time.Duration) bool {
 	return d >= m.BoredThreshold
+}
+
+func (m *Mobile) Detect(d float32) bool {
+	return d <= m.DetectionRadius
 }
 
 // MobState is implemented by various states responsible for controlling mobile
@@ -105,6 +117,11 @@ func (h *HuntState) Exit(m Mob) {
 // playerSeen returns true if the player is currently visible to the mob and
 // within its detection radius.
 func playerSeen(m Mob, l *Level) bool {
-	// TODO: do something with visibility and detection radius.
-	return true
+	c := l.Collisions
+	mpv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
+	ppv := mgl32.Vec2{l.Player.Pos().X, l.Player.Pos().Y}
+	if c.CanSee(mpv, ppv, 0.5, 0.5) && m.Detect(mpv.Sub(ppv).Len()) {
+		return true
+	}
+	return false
 }
