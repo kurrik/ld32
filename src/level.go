@@ -24,13 +24,18 @@ import (
 
 type Level struct {
 	Player     *Player
+	Props      PropList
 	Background *twodee.Batch
+	Sheet      *twodee.Spritesheet
 }
 
-func NewLevel(mapPath string) (level *Level, err error) {
+func NewLevel(mapPath string, sheet *twodee.Spritesheet) (level *Level, err error) {
 	level = &Level{
 		Player: NewPlayer(),
+		Props:  NewPropList(),
+		Sheet:  sheet,
 	}
+	level.Props = append(level.Props, level.Player)
 	if err = level.loadMap(mapPath); err != nil {
 		return
 	}
@@ -73,7 +78,15 @@ func (l *Level) loadMap(path string) (err error) {
 	)
 	for _, objgroup := range m.ObjectGroups {
 		for _, obj := range objgroup.Objects {
-			if obj.Name == "start" {
+			switch obj.Name {
+			case "temple":
+				l.Props = append(l.Props, NewStaticProp(
+					float32(obj.X)/PxPerUnit,
+					float32(m.Height*m.TileHeight-obj.Y)/PxPerUnit,
+					l.Sheet,
+					"temple.fw",
+				))
+			case "start":
 				l.Player.MoveTo(twodee.Pt(
 					float32(obj.X)/PxPerUnit,
 					float32(m.Height*m.TileHeight-obj.Y)/PxPerUnit, // Height is reversed

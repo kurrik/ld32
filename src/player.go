@@ -97,6 +97,10 @@ func (p *Player) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 	}
 }
 
+func (p *Player) Bottom() float32 {
+	return p.AnimatingEntity.Bounds().Min.Y
+}
+
 func (p *Player) Update(elapsed time.Duration) {
 	var (
 		isMoving = p.dx != 0 || p.dy != 0

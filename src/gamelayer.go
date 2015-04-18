@@ -69,7 +69,7 @@ func (l *GameLayer) Reset() (err error) {
 	if err = l.loadSpritesheet(); err != nil {
 		return
 	}
-	if l.level, err = NewLevel("resources/background.tmx"); err != nil {
+	if l.level, err = NewLevel("resources/background.tmx", l.spritesheet); err != nil {
 		return
 	}
 	l.updateCamera(1.0)
@@ -105,9 +105,7 @@ func (l *GameLayer) Render() {
 		}
 		l.batch.Unbind()
 		l.spritetexture.Bind()
-		l.sprite.Draw([]twodee.SpriteConfig{
-			l.level.Player.SpriteConfig(l.spritesheet),
-		})
+		l.sprite.Draw(l.level.Props.SpriteConfigs(l.spritesheet))
 		l.spritetexture.Unbind()
 		l.effects.Unbind()
 		l.effects.Draw()
