@@ -146,6 +146,8 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			break
 		}
 		switch event.Code {
+		case twodee.KeyZ:
+			l.level.Player.Roll()
 		case twodee.KeyEscape:
 			l.app.State.Exit = true
 		}
