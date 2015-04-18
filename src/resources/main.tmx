@@ -10,6 +10,11 @@
  </layer>
  <objectgroup name="meta">
   <object name="start" x="816" y="1357" width="32" height="32"/>
-  <object name="temple" x="689" y="764" width="256" height="128"/>
+  <object name="temple" x="703" y="800" width="256" height="128"/>
  </objectgroup>
+ <layer name="collision" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt0bENgDAQBEFKcP/V0gIY21qJGenTD26vCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmDWiv/5KjxY9WvRo0aNFjxY9WvRo0aNFjxY9WvRo0aNFjxY9WvRo0aNFjxY9WvRo0aNFjxY9WvRo0aNFjxY9WvRo0aNnxY5arPVlTy32mNlVi73e7KvFGePhAQCcdAPsigTB
+  </data>
+ </layer>
 </map>

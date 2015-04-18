@@ -27,6 +27,7 @@ type Level struct {
 	Props      PropList
 	Background *twodee.Batch
 	Sheet      *twodee.Spritesheet
+	Collisions *twodee.Grid
 }
 
 func NewLevel(mapPath string, sheet *twodee.Spritesheet) (level *Level, err error) {
@@ -59,6 +60,15 @@ func (l *Level) loadMap(path string) (err error) {
 	}
 	if m, err = tmxgo.ParseMapString(string(data)); err != nil {
 		return
+	}
+	l.Collisions = twodee.NewGrid(m.Width, m.Height)
+	if tiles, err = m.TilesFromLayerName("collision"); err == nil {
+		// Able to find collision tiles
+		for i, t := range tiles {
+			if t != nil {
+				l.Collisions.SetIndex(int32(i), true)
+			}
+		}
 	}
 	if tiles, err = m.TilesFromLayerName("ground"); err != nil {
 		return
