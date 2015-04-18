@@ -17,17 +17,25 @@ package main
 import (
 	"../lib/twodee"
 	"fmt"
+	"github.com/go-gl/mathgl/mgl32"
+	"time"
 )
 
 var PLAYER_FRAMES = []int{0, 1, 2, 3, 4}
 
 type Player struct {
 	*twodee.AnimatingEntity
+	Dx    float32
+	Dy    float32
+	Speed float32
 }
 
 func NewPlayer() *Player {
 	return &Player{
 		AnimatingEntity: twodee.NewAnimatingEntity(0, 0, 1, 1, 0, twodee.Step10Hz, PLAYER_FRAMES),
+		Dx:              0.0,
+		Dy:              0.0,
+		Speed:           0.05,
 	}
 }
 
@@ -46,7 +54,15 @@ func (p *Player) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 	}
 }
 
-func (p *Player) Move(dx, dy float32) {
+func (p *Player) Update(elapsed time.Duration) {
+	if (p.Dx != 0 || p.Dy != 0) {
+		p.move(mgl32.Vec2{p.Dx, p.Dy})
+	}
+	p.AnimatingEntity.Update(elapsed)
+}
+
+func (p *Player) move(vec mgl32.Vec2) {
 	pos := p.Pos()
-	p.MoveTo(twodee.Pt(pos.X+dx, pos.Y+dy))
+	vec = vec.Normalize().Mul(p.Speed)
+	p.MoveTo(twodee.Pt(pos.X+vec[0], pos.Y+vec[1]))
 }
