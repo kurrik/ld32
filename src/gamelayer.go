@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/go-gl/mathgl/mgl32"
 	"io/ioutil"
+	"math"
 	"time"
 )
 
@@ -38,6 +39,7 @@ type GameLayer struct {
 	spritesheet   *twodee.Spritesheet
 	spritetexture *twodee.Texture
 	level         *Level
+	shakeObserverId int
 }
 
 func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, err error) {
@@ -58,6 +60,7 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 			"boss2": "resources/boss2.tmx",
 		},
 	}
+	layer.shakeObserverId = app.GameEventHandler.AddObserver(ShakeCamera, layer.shakeCamera)
 	err = layer.Reset()
 	return
 }
@@ -89,7 +92,7 @@ func (l *GameLayer) loadLevel(name string) (err error) {
 	if path, ok = l.levels[name]; !ok {
 		return fmt.Errorf("Invalid level: %v", name)
 	}
-	if l.level, err = NewLevel(path, l.spritesheet); err != nil {
+	if l.level, err = NewLevel(path, l.spritesheet, l.app.GameEventHandler); err != nil {
 		return
 	}
 	l.updateCamera(1.0)
@@ -113,6 +116,7 @@ func (l *GameLayer) Delete() {
 		l.effects.Delete()
 		l.effects = nil
 	}
+	l.app.GameEventHandler.RemoveObserver(ShakeCamera, l.shakeObserverId)
 }
 
 func (l *GameLayer) Render() {
@@ -132,7 +136,9 @@ func (l *GameLayer) Render() {
 }
 
 func (l *GameLayer) Update(elapsed time.Duration) {
-	l.checkKeys()
+	if !l.checkJoy() {
+		l.checkKeys()
+	}
 	if l.shake != nil {
 		l.shake.Update(elapsed)
 	}
@@ -176,7 +182,7 @@ func (l *GameLayer) updateCamera(scale float32) {
 	l.camera.SetWorldBounds(bounds)
 }
 
-func (l *GameLayer) ShakeCamera() {
+func (l *GameLayer) shakeCamera(e twodee.GETyper) {
 	if l.shake == nil {
 		decay := twodee.SineDecayFunc(
 			time.Duration(500)*time.Millisecond,
@@ -205,7 +211,6 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			l.app.State.Exit = true
 		case twodee.KeyZ:
 			l.level.Player.Roll()
-			l.ShakeCamera()
 		case twodee.KeyM:
 			if twodee.MusicIsPaused() {
 				l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(ResumeMusic))
@@ -222,6 +227,33 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			l.loadLevel("boss2")
 		}
 
+	}
+	return true
+}
+
+func (l *GameLayer) checkJoy() bool {
+	var (
+		events = l.app.Context.Events
+	)
+	if !events.JoystickPresent(twodee.Joystick1) {
+		return false
+	}
+	var (
+		axes    []float32 = events.JoystickAxes(twodee.Joystick1)
+		buttons []byte    = events.JoystickButtons(twodee.Joystick1)
+		x                 = float64(axes[0])
+		y                 = float64(-axes[1])
+	)
+	if math.Abs(x) < 0.2 {
+		x = 0.0
+	}
+	if math.Abs(y) < 0.2 {
+		y = 0.0
+	}
+	l.level.Player.MoveX(float32(x))
+	l.level.Player.MoveY(float32(y))
+	if len(buttons) > 11 && buttons[11] != 0 { // Very much hardcoded to xbox controller
+		l.level.Player.Roll()
 	}
 	return true
 }

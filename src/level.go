@@ -38,9 +38,9 @@ type Portal struct {
 	Level string
 }
 
-func NewLevel(mapPath string, sheet *twodee.Spritesheet) (level *Level, err error) {
+func NewLevel(mapPath string, sheet *twodee.Spritesheet, events *twodee.GameEventHandler) (level *Level, err error) {
 	level = &Level{
-		Player: NewPlayer(),
+		Player: NewPlayer(events),
 		Props:  NewPropList(),
 		Sheet:  sheet,
 	}
