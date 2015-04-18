@@ -14,8 +14,6 @@
 
 package main
 
-import twodee "../lib/twodee"
-
 type Mob struct {
 	detectionRadius float32
 }
@@ -29,7 +27,7 @@ type MobState interface {
 	// which state the mobile should transition to. It's legal to return
 	// either the current MobState or nil, indicating that the mobile
 	// should transition to a previous state.
-	ExamineWorld(*Mob, *twodee.GameLayer) (newState *MobState)
+	ExamineWorld(*Mob, *GameLayer) (newState *MobState)
 	// Update should be called each frame and may update values in the
 	// current state or call functions on the mob.
 	Update(*Mob)
@@ -45,7 +43,7 @@ type SearchState struct{}
 
 // ExamineWorld returns HuntState if the player is seen, otherwise the mob
 // continues wandering.
-func (s *SearchState) ExamineWorld(m *Mob, l *twodee.GameLayer) *MobState {
+func (s *SearchState) ExamineWorld(m *Mob, l *GameLayer) *MobState {
 	if playerSeen(m, l) {
 		return &HuntState{}
 	}
@@ -65,12 +63,12 @@ func (s *SearchState) Exit(m *Mob) {
 
 // HuntState is the state during which a mobile is actively hunting the player.
 type HuntState struct {
-	timeSinceLastContact ufloat64
+	timeSinceLastContact float32
 }
 
 // ExamineWorld returns the current state if the player is currently seen or
 // the mob is not yet tired of chasing. Otherwise, it returns nil.
-func (h *HuntState) ExamineWorld(m *Mob, l *twodee.GameLayer) *MobState {
+func (h *HuntState) ExamineWorld(m *Mob, l *GameLayer) *MobState {
 	if playerSeen(m, l) || !m.Bored(h.timeSinceLastContact) {
 		return h
 	}
