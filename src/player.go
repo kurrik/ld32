@@ -172,7 +172,7 @@ func (p *Player) Roll() {
 		p.swapState(Walking|Rolling, Standing)
 		p.rolling = false
 	})
-	p.events.Enqueue(twodee.NewBasicGameEvent(ShakeCamera))
+	p.events.Enqueue(NewShakeEvent(500, 0.08, 4.0, 1.0))
 }
 
 func (p *Player) remState(state PlayerState) {

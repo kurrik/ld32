@@ -11,14 +11,14 @@
  <objectgroup name="meta">
   <object name="start" x="304" y="304" width="32" height="32"/>
   <object name="boss" type="boss2" x="303" y="143" width="32" height="32"/>
-  <object name="plate" type="009900" x="128" y="256" width="16" height="16"/>
-  <object name="plate" type="333399" x="128" y="384" width="16" height="16"/>
-  <object name="plate" type="000066" x="496" y="384" width="16" height="16"/>
-  <object name="plate" type="009900" x="496" y="256" width="16" height="16"/>
-  <object name="plate" type="009900" x="128" y="128" width="16" height="16"/>
-  <object name="plate" type="009900" x="496" y="128" width="16" height="16"/>
-  <object name="plate" type="000066" x="496" y="512" width="16" height="16"/>
-  <object name="plate" type="333399" x="128" y="512" width="16" height="16"/>
+  <object name="plate" type="339900" x="128" y="256" width="16" height="16"/>
+  <object name="plate" type="333999" x="128" y="384" width="16" height="16"/>
+  <object name="plate" type="666000" x="496" y="384" width="16" height="16"/>
+  <object name="plate" type="006600" x="496" y="256" width="16" height="16"/>
+  <object name="plate" type="660000" x="128" y="128" width="16" height="16"/>
+  <object name="plate" type="993300" x="496" y="128" width="16" height="16"/>
+  <object name="plate" type="003399" x="496" y="512" width="16" height="16"/>
+  <object name="plate" type="000066" x="128" y="512" width="16" height="16"/>
  </objectgroup>
  <layer name="collision" width="40" height="40" visible="0">
   <data encoding="base64" compression="zlib">

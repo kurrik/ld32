@@ -65,6 +65,7 @@ func (p *Plate) HandleCollision(player *Player) {
 	if !p.Active {
 		p.Active = true
 		p.events.Enqueue(NewColorEvent(p.Color.Vec3(), true))
+		p.events.Enqueue(NewShakeEvent(200, 0.4, 2.0, 1.0))
 		p.elapsed = time.Duration(0)
 	}
 }

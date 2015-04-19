@@ -196,15 +196,19 @@ func (l *GameLayer) updateCamera(scale float32) {
 
 func (l *GameLayer) shakeCamera(e twodee.GETyper) {
 	if l.shake == nil {
-		decay := twodee.SineDecayFunc(
-			time.Duration(500)*time.Millisecond,
-			0.08, // Amplitude
-			4.0,  // Frequency
-			1.0,  // Decay
-		)
-		l.shake = twodee.NewContinuousAnimation(decay)
+		if event, ok := e.(*ShakeEvent); ok {
+			decay := twodee.SineDecayFunc(
+				time.Duration(event.Millis)*time.Millisecond,
+				event.Amplitude,
+				event.Frequency,
+				event.Decay,
+				func() {
+					l.shake = nil
+				},
+			)
+			l.shake = twodee.NewContinuousAnimation(decay)
+		}
 	}
-	l.shake.Reset()
 }
 
 func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
