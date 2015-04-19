@@ -15,13 +15,14 @@
 package main
 
 import (
-	"../lib/twodee"
 	"encoding/hex"
-	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kurrik/tmxgo"
 	"io/ioutil"
 	"path/filepath"
 	"time"
+
+	"../lib/twodee"
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kurrik/tmxgo"
 )
 
 type Level struct {
@@ -57,6 +58,9 @@ func NewLevel(mapPath string, sheet *twodee.Spritesheet, events *twodee.GameEven
 	if err = level.loadMap(mapPath); err != nil {
 		return
 	}
+	if level.Boss != nil {
+		level.Props = append(level.Props, level.Boss)
+	}
 	level.colorObserverId = events.AddObserver(ChangeColor, level.changeColor)
 	return
 }
@@ -72,6 +76,12 @@ func (l *Level) changeColor(e twodee.GETyper) {
 }
 
 func (l *Level) Update(elapsed time.Duration) {
+	// TODO: Probably this should update a slice of Mobs or other
+	// updateable things in the level.
+	if l.Boss != nil {
+		l.Boss.Update(elapsed)
+		l.Boss.ExamineWorld(l)
+	}
 	l.Player.UpdateLevel(elapsed, l)
 	l.Plates.Update(elapsed)
 	l.Plates.CheckCollision(l.Player)
@@ -158,7 +168,7 @@ func (l *Level) loadMap(path string) (err error) {
 			case "start":
 				l.Player.MoveTo(twodee.Pt(x, y))
 			case "boss":
-				l.Boss = BossMap[obj.Type]()
+				l.Boss = BossMap[obj.Type](x, y)
 				l.Boss.MoveTo(twodee.Pt(x, y))
 			}
 		}

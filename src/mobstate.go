@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"../lib/twodee"
@@ -26,11 +27,17 @@ type Mob interface {
 	SetFrames(f []int)
 	Detect(dist float32) bool
 	Pos() twodee.Point
+	Bounds() twodee.Rectangle
+	SearchPattern() []mgl32.Vec2
+	Speed() float32
+	MoveTo(twodee.Point)
 }
 
 type Mobile struct {
 	DetectionRadius float32
 	BoredThreshold  time.Duration
+	speed           float32
+	searchPattern   []mgl32.Vec2
 }
 
 func (m *Mobile) Bored(d time.Duration) bool {
@@ -39,6 +46,31 @@ func (m *Mobile) Bored(d time.Duration) bool {
 
 func (m *Mobile) Detect(d float32) bool {
 	return d <= m.DetectionRadius
+}
+
+func (m *Mobile) SearchPattern() []mgl32.Vec2 {
+	return m.searchPattern
+}
+
+func (m *Mobile) Speed() float32 {
+	return m.speed
+}
+
+// TODO: this should probably just kill the player?
+func (m *Mobile) HandleCollision(p *Player) {}
+
+// MoveMob moves the mob along the given vector, which should be normalized.
+func MoveMob(m Mob, v mgl32.Vec2, l *Level) {
+	bounds := m.Bounds()
+	pos := m.Pos()
+	v = l.Collisions.FixMove(mgl32.Vec4{
+		bounds.Min.X,
+		bounds.Min.Y,
+		bounds.Max.X,
+		bounds.Max.Y,
+	}, v, 0.5, 0.5)
+	p := twodee.Pt(pos.X+v[0], pos.Y+v[1])
+	m.MoveTo(p)
 }
 
 // MobState is implemented by various states responsible for controlling mobile
@@ -60,58 +92,100 @@ type MobState interface {
 	Exit(Mob)
 }
 
-// SearchState is the state during which a mobile is aimlessly wandering,
-// hoping to chance across the player.
-type SearchState struct{}
+type BaseState struct {
+	Name string
+}
 
-// ExamineWorld returns HuntState if the player is seen, otherwise the mob
-// continues wandering.
-func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
-	if playerSeen(m, l) {
-		return &HuntState{}
-	}
+func (s *BaseState) ExamineWorld(m Mob, l *Level) MobState {
 	return s
 }
-
-func (s *SearchState) Update(m Mob, d time.Duration) {
+func (s *BaseState) Update(m Mob, d time.Duration) {}
+func (s *BaseState) Enter(m Mob) {
+	fmt.Printf("Entering the %v state.\n", s.Name)
+}
+func (s *BaseState) Exit(m Mob) {
+	fmt.Printf("Exiting the %v state.\n", s.Name)
 }
 
-func (s *SearchState) Enter(m Mob) {
-	// TODO: set some hunting animation.
+// VegState encapsulates the state of being a vegetable.
+type VegState struct {
+	*BaseState
 }
 
-func (s *SearchState) Exit(m Mob) {
-	// TODO: maybe something should happen when we start hunting?
+func NewVegState() *VegState {
+	return &VegState{&BaseState{"Veggie"}}
+}
+
+// ExamineWorld always returns a new SearchState.
+func (s *VegState) ExamineWorld(m Mob, l *Level) MobState {
+	return &SearchState{m.SearchPattern(), 0, &BaseState{"Search"}}
+}
+
+// SearchState is the state during which a mobile is aimlessly wandering,
+// hoping to chance across the player.
+// TODO: Implement Enter and Exit to have searching animations.
+type SearchState struct {
+	Pattern        []mgl32.Vec2
+	targetPointIdx int
+	*BaseState
+}
+
+// ExamineWorld returns HuntState if the player is seen, otherwise the mob
+// continues wandering according to its search pattern.
+func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
+	if playerSeen(m, l) {
+		return NewHuntState()
+	}
+	if len(s.Pattern) == 0 {
+		// Do nothing right now with no search pattern.
+		return s
+	}
+	tv := s.Pattern[s.targetPointIdx]
+	mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
+	if tv.Sub(mv).Len() < 2 { // CLOSE ENOUGH!
+		s.targetPointIdx = (s.targetPointIdx + 1) % len(s.Pattern)
+		tv = s.Pattern[s.targetPointIdx]
+	}
+	MoveMob(m, tv.Sub(mv).Normalize().Mul(m.Speed()), l)
+	return s
 }
 
 // HuntState is the state during which a mobile is actively hunting the player.
 type HuntState struct {
 	durSinceLastContact time.Duration
+	*BaseState
+}
+
+func NewHuntState() *HuntState {
+	return &HuntState{0, &BaseState{"Hunt"}}
 }
 
 // ExamineWorld returns the current state if the player is currently seen or
 // the mob is not yet tired of chasing. Otherwise, it returns nil.
-func (h *HuntState) ExamineWorld(m Mob, l *Level) MobState {
+func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 	if playerSeen(m, l) {
-		h.durSinceLastContact = time.Duration(0)
-		return h
+		s.durSinceLastContact = time.Duration(0)
+		ns = s
 	}
-	if !m.Bored(h.durSinceLastContact) {
-		return h
+	if !m.Bored(s.durSinceLastContact) {
+		ns = s
 	}
-	return nil
+	if ns != nil {
+		// Chase player! Maybe swing!
+		tv := mgl32.Vec2{l.Player.Pos().X, l.Player.Pos().Y}
+		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
+		if tv.Sub(mv).Len() < 1 {
+			// return swing state
+		}
+		MoveMob(m, tv.Sub(mv).Normalize().Mul(m.Speed()), l)
+	}
+	return ns
 }
 
 // Update resets the player's hiding timer if the player is seen, otherwise it
 // increments.
-func (h *HuntState) Update(m Mob, d time.Duration) {
-	h.durSinceLastContact += d
-}
-
-func (h *HuntState) Enter(m Mob) {
-}
-
-func (h *HuntState) Exit(m Mob) {
+func (s *HuntState) Update(m Mob, d time.Duration) {
+	s.durSinceLastContact += d
 }
 
 // playerSeen returns true if the player is currently visible to the mob and
