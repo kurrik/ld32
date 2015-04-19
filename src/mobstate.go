@@ -202,7 +202,6 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		if s.pathIdx == len(s.path) {
 			return ns
 		}
-		fmt.Printf("Pathidx: %v\n", s.pathIdx)
 		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
 		for s.pathIdx < len(s.path) {
 			if l.BossCollisions.CanSee(mv, mgl32.Vec2{
