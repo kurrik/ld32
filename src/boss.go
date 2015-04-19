@@ -72,7 +72,7 @@ func NewBoss(m *Mobile) *Boss {
 		dx:         0.0,
 		dy:         0.0,
 		speed:      0.04,
-		StateStack: []MobState{&VegState{}},
+		StateStack: []MobState{NewVegState()},
 	}
 }
 

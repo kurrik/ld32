@@ -92,32 +92,49 @@ type MobState interface {
 	Exit(Mob)
 }
 
-// VegState encapsulates the state of being a vegetable.
-type VegState struct{}
-
-// ExamineWorld always returns a new SearchState.
-func (v *VegState) ExamineWorld(m Mob, l *Level) MobState {
-	return &SearchState{m.SearchPattern(), 0}
+type BaseState struct {
+	Name string
 }
 
-func (v *VegState) Update(m Mob, d time.Duration) {}
+func (s *BaseState) ExamineWorld(m Mob, l *Level) MobState {
+	return s
+}
+func (s *BaseState) Update(m Mob, d time.Duration) {}
+func (s *BaseState) Enter(m Mob) {
+	fmt.Printf("Entering the %v state.\n", s.Name)
+}
+func (s *BaseState) Exit(m Mob) {
+	fmt.Printf("Exiting the %v state.\n", s.Name)
+}
 
-func (v *VegState) Enter(m Mob) {}
+// VegState encapsulates the state of being a vegetable.
+type VegState struct {
+	*BaseState
+}
 
-func (v *VegState) Exit(m Mob) {}
+func NewVegState() *VegState {
+	return &VegState{&BaseState{"Veggie"}}
+}
+
+// ExamineWorld always returns a new SearchState.
+func (s *VegState) ExamineWorld(m Mob, l *Level) MobState {
+	return &SearchState{m.SearchPattern(), 0, &BaseState{"Search"}}
+}
 
 // SearchState is the state during which a mobile is aimlessly wandering,
 // hoping to chance across the player.
+// TODO: Implement Enter and Exit to have searching animations.
 type SearchState struct {
 	Pattern        []mgl32.Vec2
 	targetPointIdx int
+	*BaseState
 }
 
 // ExamineWorld returns HuntState if the player is seen, otherwise the mob
 // continues wandering according to its search pattern.
 func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
 	if playerSeen(m, l) {
-		return &HuntState{}
+		return NewHuntState()
 	}
 	if len(s.Pattern) == 0 {
 		// Do nothing right now with no search pattern.
@@ -133,22 +150,14 @@ func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
 	return s
 }
 
-func (s *SearchState) Update(m Mob, d time.Duration) {
-}
-
-func (s *SearchState) Enter(m Mob) {
-	fmt.Println("In the search state!")
-	// TODO: set some hunting animation.
-}
-
-func (s *SearchState) Exit(m Mob) {
-	fmt.Println("Leaving the search state!")
-	// TODO: maybe something should happen when we start hunting?
-}
-
 // HuntState is the state during which a mobile is actively hunting the player.
 type HuntState struct {
 	durSinceLastContact time.Duration
+	*BaseState
+}
+
+func NewHuntState() *HuntState {
+	return &HuntState{0, &BaseState{"Hunt"}}
 }
 
 // ExamineWorld returns the current state if the player is currently seen or
@@ -168,14 +177,6 @@ func (h *HuntState) ExamineWorld(m Mob, l *Level) MobState {
 // increments.
 func (h *HuntState) Update(m Mob, d time.Duration) {
 	h.durSinceLastContact += d
-}
-
-func (h *HuntState) Enter(m Mob) {
-	fmt.Println("Entering the hunt state")
-}
-
-func (h *HuntState) Exit(m Mob) {
-	fmt.Println("Exiting the hunt state")
 }
 
 // playerSeen returns true if the player is currently visible to the mob and
