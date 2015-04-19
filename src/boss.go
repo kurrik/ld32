@@ -28,10 +28,12 @@ type BossState int32
 const (
 	_                = iota
 	Normal BossState = 1 << iota
+	BossDying
 )
 
 var BossAnimations = map[BossState][]int{
-	Normal: []int{0, 1},
+	Normal:    []int{0, 1},
+	BossDying: []int{0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5},
 }
 
 var BossMap = map[string]BossMaker{
@@ -81,6 +83,7 @@ type Boss struct {
 	Color         mgl32.Vec3
 	Colors        []mgl32.Vec3
 	events        *twodee.GameEventHandler
+	Dead          bool
 }
 
 func NewBoss(m *Mobile, colors []mgl32.Vec3, events *twodee.GameEventHandler) *Boss {
@@ -97,6 +100,7 @@ func NewBoss(m *Mobile, colors []mgl32.Vec3, events *twodee.GameEventHandler) *B
 		StateStack: []MobState{NewVegState()},
 		Colors:     colors,
 		events:     events,
+		Dead:       false,
 	}
 	b.NextColor()
 	return b
@@ -131,15 +135,24 @@ func (b *Boss) ExamineWorld(l *Level) {
 
 func (b *Boss) Update(elapsed time.Duration) {
 	b.AnimatingEntity.Update(elapsed)
-	// Hrm, should update be fed to every state in the stack?
-	for i := len(b.StateStack) - 1; i >= 0; i-- {
-		b.StateStack[i].Update(b, elapsed)
+	if !b.Dead {
+		// Hrm, should update be fed to every state in the stack?
+		for i := len(b.StateStack) - 1; i >= 0; i-- {
+			b.StateStack[i].Update(b, elapsed)
+		}
+		//	b.StateStack[len(b.StateStack)-1].Update(b, elapsed)
 	}
-	//	b.StateStack[len(b.StateStack)-1].Update(b, elapsed)
 }
 
 func (b *Boss) Bottom() float32 {
 	return b.AnimatingEntity.Bounds().Min.Y
+}
+
+func (b *Boss) Die() {
+	if !b.Dead {
+		b.SetFrames(BossAnimations[BossDying])
+		b.Dead = true
+	}
 }
 
 func (b *Boss) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
