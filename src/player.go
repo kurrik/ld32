@@ -177,7 +177,7 @@ func (p *Player) Roll() {
 		p.swapState(Walking|Rolling, Standing)
 		p.rolling = false
 	})
-	p.events.Enqueue(NewShakeEvent(500, 0.08, 4.0, 1.0))
+	p.events.Enqueue(NewShakeEvent(0, 500, 0.08, 4.0, 1.0))
 }
 
 func (p *Player) remState(state PlayerState) {

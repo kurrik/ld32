@@ -25,6 +25,8 @@ const (
 	ResumeMusic
 	ShakeCamera
 	ChangeColor
+	BossColor
+	BossDied
 	SENTINEL
 )
 
@@ -52,14 +54,38 @@ type ShakeEvent struct {
 	Amplitude float32
 	Frequency float32
 	Decay     float32
+	Priority  int32
 }
 
-func NewShakeEvent(ms int32, amplitude, freq, decay float32) *ShakeEvent {
+func NewShakeEvent(priority, ms int32, amplitude, freq, decay float32) *ShakeEvent {
 	return &ShakeEvent{
 		BasicGameEvent: *twodee.NewBasicGameEvent(ShakeCamera),
 		Millis:         ms,
 		Amplitude:      amplitude,
 		Frequency:      freq,
 		Decay:          decay,
+		Priority:       priority,
+	}
+}
+
+type BossColorEvent struct {
+	twodee.BasicGameEvent
+	Color mgl32.Vec3
+}
+
+func NewBossColorEvent(color mgl32.Vec3) *BossColorEvent {
+	return &BossColorEvent{
+		*twodee.NewBasicGameEvent(BossColor),
+		color,
+	}
+}
+
+type BossDiedEvent struct {
+	twodee.BasicGameEvent
+}
+
+func NewBossDiedEvent() *BossDiedEvent {
+	return &BossDiedEvent{
+		*twodee.NewBasicGameEvent(BossDied),
 	}
 }

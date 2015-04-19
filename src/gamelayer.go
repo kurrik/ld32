@@ -43,6 +43,7 @@ type GameLayer struct {
 	spritetexture   *twodee.Texture
 	level           *Level
 	shakeObserverId int
+	shakePriority   int32
 }
 
 func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, err error) {
@@ -67,6 +68,7 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 			"boss1": "resources/boss1.tmx",
 			"boss2": "resources/boss2.tmx",
 		},
+		shakePriority: -1,
 	}
 	layer.shakeObserverId = app.GameEventHandler.AddObserver(ShakeCamera, layer.shakeCamera)
 	err = layer.Reset()
@@ -235,8 +237,8 @@ func (l *GameLayer) updateCamera(scale float32) {
 }
 
 func (l *GameLayer) shakeCamera(e twodee.GETyper) {
-	if l.shake == nil {
-		if event, ok := e.(*ShakeEvent); ok {
+	if event, ok := e.(*ShakeEvent); ok {
+		if l.shake == nil || event.Priority > l.shakePriority {
 			decay := twodee.SineDecayFunc(
 				time.Duration(event.Millis)*time.Millisecond,
 				event.Amplitude,
@@ -244,9 +246,11 @@ func (l *GameLayer) shakeCamera(e twodee.GETyper) {
 				event.Decay,
 				func() {
 					l.shake = nil
+					l.shakePriority = -1
 				},
 			)
 			l.shake = twodee.NewContinuousAnimation(decay)
+			l.shakePriority = event.Priority
 		}
 	}
 }

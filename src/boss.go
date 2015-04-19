@@ -28,10 +28,10 @@ var BossMap = map[string]BossMaker{
 	"boss2": MakeBoss2,
 }
 
-type BossMaker func(x, y float32) *Boss
+type BossMaker func(x, y float32, events *twodee.GameEventHandler) *Boss
 
 // MakeBoss1 returns a boss that searches left and right and gets bored easily.
-func MakeBoss1(x, y float32) *Boss {
+func MakeBoss1(x, y float32, events *twodee.GameEventHandler) *Boss {
 	sp := []mgl32.Vec2{
 		mgl32.Vec2{x - 10, y},
 		mgl32.Vec2{x + 10, y},
@@ -41,16 +41,24 @@ func MakeBoss1(x, y float32) *Boss {
 		BoredThreshold:  5 * time.Second,
 		speed:           0.04,
 		searchPattern:   sp,
-	})
+	}, []mgl32.Vec3{
+		mgl32.Vec3{1.0, 0.0, 0.0},
+		mgl32.Vec3{0.0, 1.0, 0.0},
+		mgl32.Vec3{0.0, 0.0, 1.0},
+	}, events)
 }
 
-func MakeBoss2(x, y float32) *Boss {
+func MakeBoss2(x, y float32, events *twodee.GameEventHandler) *Boss {
 	return NewBoss(&Mobile{
 		DetectionRadius: 10,
 		BoredThreshold:  20 * time.Second,
 		speed:           0.04,
 		searchPattern:   []mgl32.Vec2{},
-	})
+	}, []mgl32.Vec3{
+		mgl32.Vec3{1.0, 0.0, 0.0},
+		mgl32.Vec3{0.0, 1.0, 0.0},
+		mgl32.Vec3{0.0, 0.0, 1.0},
+	}, events)
 }
 
 type Boss struct {
@@ -59,10 +67,13 @@ type Boss struct {
 	// Likely don't need speed anymore on Boss, since it's on Mobile.
 	dx, dy, speed float32
 	StateStack    []MobState
+	Color         mgl32.Vec3
+	Colors        []mgl32.Vec3
+	events        *twodee.GameEventHandler
 }
 
-func NewBoss(m *Mobile) *Boss {
-	return &Boss{
+func NewBoss(m *Mobile, colors []mgl32.Vec3, events *twodee.GameEventHandler) *Boss {
+	b := &Boss{
 		AnimatingEntity: twodee.NewAnimatingEntity(
 			0, 0, 1, 1, 0,
 			twodee.Step10Hz,
@@ -73,6 +84,22 @@ func NewBoss(m *Mobile) *Boss {
 		dy:         0.0,
 		speed:      0.04,
 		StateStack: []MobState{NewVegState()},
+		Colors:     colors,
+		events:     events,
+	}
+	b.NextColor()
+	return b
+}
+
+func (b *Boss) NextColor() {
+	if len(b.Colors) > 0 {
+		b.Color = b.Colors[0]
+		b.Colors = b.Colors[1:]
+		fmt.Printf("Next boss color: %v\n", b.Color)
+		b.events.Enqueue(NewBossColorEvent(b.Color))
+	} else {
+		fmt.Printf("Boss is dead!\n")
+		b.events.Enqueue(NewBossDiedEvent())
 	}
 }
 
