@@ -168,7 +168,7 @@ func (l *Level) loadMap(path string) (err error) {
 			case "start":
 				l.Player.MoveTo(twodee.Pt(x, y))
 			case "boss":
-				l.Boss = BossMap[obj.Type](x, y)
+				l.Boss = BossMap[obj.Type](x, y, l.events)
 				l.Boss.MoveTo(twodee.Pt(x, y))
 			}
 		}
