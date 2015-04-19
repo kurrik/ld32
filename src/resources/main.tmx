@@ -8,14 +8,14 @@
    eJzt0cEJwDAMBEHl7/7rTQshBGfB85ivELdrZi4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOCVFb11Kj1a9GjRo0WPFj1a9GjRo0WPFj1a9GjRo0WPFj1a9GjRo0WPFj1a9GjRo0WPFj1a9GjRo0WPFj1a9GjRo0WPni921KLTRItOEy06TbTY1+SJv/8EAM5yA22dKmA=
   </data>
  </layer>
- <objectgroup name="meta" visible="0">
+ <objectgroup name="meta">
   <object name="start" x="816" y="1357" width="32" height="32"/>
-  <object name="temple" x="703" y="800" width="256" height="128"/>
+  <object name="sprite" type="temple.fw" x="703" y="800" width="256" height="128"/>
   <object name="portal" type="boss1" x="815" y="879" width="32" height="48"/>
  </objectgroup>
  <layer name="collision" width="100" height="100" opacity="0.48">
   <data encoding="base64" compression="zlib">
-   eJzt20sNwCAABUEk1L/aWijlkz3MJBh4m8CJMQAAAAAAAAAAAAAAAAAAAAAAAABg3rN42EuPFj1a9GjRo+XrznrcoUeLHgDM2Hn3e0fW6dGiR4seLXq06NGiR4seLXq06NGiR4seLXq06NGiR4seLXq06NGiR4seLXq06NGiR4seLXq06NGiR4seLXr07NhRi71W9tTijD+7anHWzL5a3OHPOQBQ9ALlvgwB
+   eJzt20sNgDAABUEk4F8tFug3e5hJMPA2tKc+DwAAAAAAAAAAAAAAAAAAAAAAAACMexc/9tKjRY+W2QZ6nOH/aPm7sx536NGiBwAjdp797pF1erTo0aJHix4terTo0aJHix4terTo0aJHix4terTo0aJHix4terTo0aJHix4terTo0aJHix4terTo0aJHix49O3bUYq+VPbU4Y2ZXLc4a2VeLO7w5BwCKPlzCC/E=
   </data>
  </layer>
 </map>

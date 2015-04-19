@@ -52,6 +52,7 @@ var PlayerAnimations = map[PlayerState][]int{
 
 type Player struct {
 	*twodee.AnimatingEntity
+	events    *twodee.GameEventHandler
 	dx        float32
 	dy        float32
 	rolldx    float32
@@ -62,13 +63,14 @@ type Player struct {
 	State     PlayerState
 }
 
-func NewPlayer() *Player {
+func NewPlayer(events *twodee.GameEventHandler) *Player {
 	return &Player{
 		AnimatingEntity: twodee.NewAnimatingEntity(
 			0, 0, 1, 1, 0,
 			twodee.Step10Hz,
 			PlayerAnimations[Standing|Up],
 		),
+		events:    events,
 		dx:        0.0,
 		dy:        0.0,
 		speed:     0.05,
@@ -157,6 +159,9 @@ func (p *Player) MoveY(mag float32) {
 }
 
 func (p *Player) Roll() {
+	if p.rolling {
+		return
+	}
 	p.rolling = true
 	p.rolldx = p.dx
 	p.rolldy = p.dy
@@ -164,6 +169,7 @@ func (p *Player) Roll() {
 		p.swapState(Walking|Rolling, Standing)
 		p.rolling = false
 	})
+	p.events.Enqueue(twodee.NewBasicGameEvent(ShakeCamera))
 }
 
 func (p *Player) remState(state PlayerState) {

@@ -10,5 +10,6 @@
  </layer>
  <objectgroup name="meta">
   <object name="start" x="224" y="232" width="32" height="32"/>
+  <object name="boss" type="boss2" x="223" y="63" width="32" height="32"/>
  </objectgroup>
 </map>
