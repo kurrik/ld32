@@ -18,8 +18,8 @@ import (
 	"../lib/twodee"
 	"fmt"
 	"github.com/go-gl/mathgl/mgl32"
-	"io/ioutil"
 	"image/color"
+	"io/ioutil"
 	"math"
 	"time"
 )
@@ -33,6 +33,7 @@ type GameLayer struct {
 	shake           *twodee.ContinuousAnimation
 	cameraBounds    twodee.Rectangle
 	camera          *twodee.Camera
+	linesCamera     *twodee.Camera
 	sprite          *twodee.SpriteRenderer
 	lines           *twodee.LinesRenderer
 	batch           *twodee.BatchRenderer
@@ -42,19 +43,23 @@ type GameLayer struct {
 	spritetexture   *twodee.Texture
 	level           *Level
 	shakeObserverId int
-	lineSegments    []mgl32.Vec2
 }
 
 func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, err error) {
 	var (
 		camera       *twodee.Camera
+		linesCamera  *twodee.Camera
 		cameraBounds = twodee.Rect(-8, -5, 8, 5)
 	)
 	if camera, err = twodee.NewCamera(cameraBounds, winb); err != nil {
 		return
 	}
+	if linesCamera, err = twodee.NewCamera(cameraBounds, winb); err != nil {
+		return
+	}
 	layer = &GameLayer{
 		camera:       camera,
+		linesCamera:  linesCamera,
 		cameraBounds: cameraBounds,
 		app:          app,
 		levels: map[string]string{
@@ -62,7 +67,6 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 			"boss1": "resources/boss1.tmx",
 			"boss2": "resources/boss2.tmx",
 		},
-		lineSegments: []mgl32.Vec2{mgl32.Vec2{0, 0}},
 	}
 	layer.shakeObserverId = app.GameEventHandler.AddObserver(ShakeCamera, layer.shakeCamera)
 	err = layer.Reset()
@@ -77,7 +81,7 @@ func (l *GameLayer) Reset() (err error) {
 	if l.sprite, err = twodee.NewSpriteRenderer(l.camera); err != nil {
 		return
 	}
-	if l.lines, err = twodee.NewLinesRenderer(l.camera); err != nil {
+	if l.lines, err = twodee.NewLinesRenderer(l.linesCamera); err != nil {
 		return
 	}
 	if l.effects, err = NewEffectsRenderer(512, 320, 1.0); err != nil {
@@ -155,18 +159,30 @@ func (l *GameLayer) Render() {
 		l.effects.Unbind()
 		l.effects.Draw()
 
-		if len(l.lineSegments) > 1 {
-			line := twodee.NewLineGeometry(l.lineSegments, false)
-			style := &twodee.LineStyle{
-				Thickness: 0.2,
-				Color: color.RGBA{255, 0, 0, 128},
-				Inner: 0.0,
-			}
-			modelview := mgl32.Ident4()
-			l.lines.Bind()
-			l.lines.Draw(line, modelview, style)
-			l.lines.Unbind()
+		redLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.6}, mgl32.Vec2{7.7, 4.6}}, false)
+		blueLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.3}, mgl32.Vec2{7.7, 4.3}}, false)
+		greenLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4}, mgl32.Vec2{7.7, 4}}, false)
+		redStyle := &twodee.LineStyle{
+			Thickness: 0.15,
+			Color:     color.RGBA{255, 0, 0, 128},
+			Inner:     0.0,
 		}
+		blueStyle := &twodee.LineStyle{
+			Thickness: 0.15,
+			Color:     color.RGBA{0, 255, 0, 128},
+			Inner:     0.0,
+		}
+		greenStyle := &twodee.LineStyle{
+			Thickness: 0.15,
+			Color:     color.RGBA{0, 0, 255, 128},
+			Inner:     0.0,
+		}
+		modelview := mgl32.Ident4()
+		l.lines.Bind()
+		l.lines.Draw(redLine, modelview, redStyle)
+		l.lines.Draw(greenLine, modelview, greenStyle)
+		l.lines.Draw(blueLine, modelview, blueStyle)
+		l.lines.Unbind()
 	}
 }
 
