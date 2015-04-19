@@ -1,18 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="40" height="40" tilewidth="16" tileheight="16">
  <tileset firstgid="1" name="background_tiles" tilewidth="16" tileheight="16">
-  <image source="background_tiles.png" trans="ff00ff" width="64" height="64"/>
+  <image source="background_tiles.png" trans="ff00ff" width="256" height="256"/>
  </tileset>
- <layer name="ground" width="30" height="30">
+ <layer name="ground" width="40" height="40">
   <data encoding="base64" compression="zlib">
-   eJztw0ENAAAMA6H71r/hCRkkrJqqqqrvHtN6H6U=
+   eJztlkkOwyAMRblChs7dtOpJcv9DNZFqFVlgRmNALJ4Skenz9BOyKaW2QTZeP97avouQc11Q2VTG58TOx+XuY7nONo6PxVzvmxHuMwkBc6DyzcJQ+STd6Q5t+Up6WoljtnzS7oBQf9RcOejNX2ly+luGP29/p517Ihcmf8c7fN55JPJk9Af5JrTFY/q4KR/X9w/yrQG+ZgF/2BkFds3hD2ipfz7uTJ5L+MOdsnUOtnpfS/UP98rk0zQG/qh1p9f+XVX6+nHzeE7s+lH7+luKXv9fWvHH3cVW/dXQQSpbDQ5d+SQd+mQbDAZ/vpS81tQ=
   </data>
  </layer>
  <objectgroup name="meta">
-  <object name="start" x="224" y="232" width="32" height="32"/>
-  <object name="boss" type="boss2" x="223" y="63" width="32" height="32"/>
-  <object name="plate" type="009900" x="182" y="223" width="16" height="16"/>
-  <object name="plate" type="333399" x="89" y="309" width="16" height="16"/>
-  <object name="plate" type="000066" x="376" y="341" width="16" height="16"/>
+  <object name="start" x="304" y="304" width="32" height="32"/>
+  <object name="boss" type="boss2" x="303" y="143" width="32" height="32"/>
+  <object name="plate" type="009900" x="128" y="256" width="16" height="16"/>
+  <object name="plate" type="333399" x="128" y="384" width="16" height="16"/>
+  <object name="plate" type="000066" x="496" y="384" width="16" height="16"/>
+  <object name="plate" type="009900" x="496" y="256" width="16" height="16"/>
+  <object name="plate" type="009900" x="128" y="128" width="16" height="16"/>
+  <object name="plate" type="009900" x="496" y="128" width="16" height="16"/>
+  <object name="plate" type="000066" x="496" y="512" width="16" height="16"/>
+  <object name="plate" type="333399" x="128" y="512" width="16" height="16"/>
  </objectgroup>
+ <layer name="collision" width="40" height="40" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJztzjEKADAIwEC/5v8/1al0K0IGFRLIfhkR6e7lu5psu232TUkfSx9LH0sfSx9LH0sfSx9LH0sfSx9rq2+C8Wfb4Os0Vmzu/j5Qk5dV
+  </data>
+ </layer>
 </map>

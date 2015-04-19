@@ -116,9 +116,14 @@ func (l *Level) loadMap(path string) (err error) {
 		return
 	}
 	textiles = make([]twodee.TexturedTile, len(tiles))
+	j := 0
 	for i, t := range tiles {
-		textiles[i] = t
+		if t != nil {
+			textiles[i] = t
+			j++
+		}
 	}
+	textiles = textiles[:j]
 	var (
 		tilem = twodee.TileMetadata{
 			Path:      filepath.Join(filepath.Dir(path), texturepath),
