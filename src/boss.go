@@ -15,7 +15,10 @@
 package main
 
 import (
+	"fmt"
 	"time"
+
+	"github.com/go-gl/mathgl/mgl32"
 
 	"../lib/twodee"
 )
@@ -25,21 +28,37 @@ var BossMap = map[string]BossMaker{
 	"boss2": MakeBoss2,
 }
 
-type BossMaker func() *Boss
+type BossMaker func(x, y float32) *Boss
 
-func MakeBoss1() *Boss {
-	return NewBoss(&Mobile{0, 5 * time.Second})
+// MakeBoss1 returns a boss that searches left and right and gets bored easily.
+func MakeBoss1(x, y float32) *Boss {
+	sp := []mgl32.Vec2{
+		mgl32.Vec2{x - 10, y},
+		mgl32.Vec2{x + 10, y},
+	}
+	return NewBoss(&Mobile{
+		DetectionRadius: 4,
+		BoredThreshold:  5 * time.Second,
+		speed:           0.04,
+		searchPattern:   sp,
+	})
 }
 
-func MakeBoss2() *Boss {
-	return NewBoss(&Mobile{1, 20 * time.Second})
+func MakeBoss2(x, y float32) *Boss {
+	return NewBoss(&Mobile{
+		DetectionRadius: 10,
+		BoredThreshold:  20 * time.Second,
+		speed:           0.04,
+		searchPattern:   []mgl32.Vec2{},
+	})
 }
 
 type Boss struct {
 	*twodee.AnimatingEntity
 	*Mobile
+	// Likely don't need speed anymore on Boss, since it's on Mobile.
 	dx, dy, speed float32
-	State         MobState
+	StateStack    []MobState
 }
 
 func NewBoss(m *Mobile) *Boss {
@@ -49,19 +68,54 @@ func NewBoss(m *Mobile) *Boss {
 			twodee.Step10Hz,
 			PlayerAnimations[Standing|Up],
 		),
-		Mobile: m,
-		dx:     0.0,
-		dy:     0.0,
-		speed:  0.04,
-		State:  &SearchState{},
+		Mobile:     m,
+		dx:         0.0,
+		dy:         0.0,
+		speed:      0.04,
+		StateStack: []MobState{&VegState{}},
 	}
 }
 
 func (b *Boss) ExamineWorld(l *Level) {
-	newState := b.State.ExamineWorld(b, l)
-	b.State = newState
+	cState := b.StateStack[len(b.StateStack)-1]
+	newState := cState.ExamineWorld(b, l)
+	if newState == cState {
+		return
+	}
+	if newState == nil { // Transition to last state.
+		cState.Exit(b)
+		b.StateStack = b.StateStack[:len(b.StateStack)-1]
+		b.StateStack[len(b.StateStack)-1].Enter(b)
+		return
+	}
+	cState.Exit(b)
+	b.StateStack = append(b.StateStack, newState)
+	newState.Enter(b)
 }
 
-func (b *Boss) Update(elapsed time.Duration) {
-	b.State.Update(b, elapsed)
+func (b *Boss) Update(elapsed time.Duration, l *Level) {
+	// Hrm, should update be fed to every state in the stack?
+	//	for i := len(b.StateStack) - 1; i >= 0; i-- {
+	//		b.StateStack[i].Update(b, elapsed)
+	//	}
+	b.StateStack[len(b.StateStack)-1].Update(b, elapsed, l)
+}
+
+func (b *Boss) Bottom() float32 {
+	return b.AnimatingEntity.Bounds().Min.Y
+}
+
+func (b *Boss) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
+	frame := sheet.GetFrame(fmt.Sprintf("numbered_squares_%02d", b.Frame()))
+	pt := b.Pos()
+	scaleX := float32(1.0)
+	// Implement facing left...
+	return twodee.SpriteConfig{
+		View: twodee.ModelViewConfig{
+			pt.X, pt.Y, 0,
+			0, 0, 0,
+			scaleX, 1.0, 1.0,
+		},
+		Frame: frame.Frame,
+	}
 }
