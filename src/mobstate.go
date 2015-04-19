@@ -31,6 +31,7 @@ type Mob interface {
 	SearchPattern() []mgl32.Vec2
 	Speed() float32
 	MoveTo(twodee.Point)
+	ShouldSwing(p mgl32.Vec2) bool
 }
 
 type Mobile struct {
@@ -150,20 +151,38 @@ func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
 	return s
 }
 
+const maxPathAge = 2
+
 // HuntState is the state during which a mobile is actively hunting the player.
 type HuntState struct {
 	durSinceLastContact time.Duration
+	path                []twodee.GridPoint
+	pathIdx, pathAge    int
 	*BaseState
 }
 
 func NewHuntState() *HuntState {
-	return &HuntState{0, &BaseState{"Hunt"}}
+	return &HuntState{
+		durSinceLastContact: 0,
+		path:                []twodee.GridPoint{},
+		pathIdx:             -1,
+		pathAge:             maxPathAge,
+		BaseState:           &BaseState{"Hunt"},
+	}
 }
 
 // ExamineWorld returns the current state if the player is currently seen or
 // the mob is not yet tired of chasing. Otherwise, it returns nil.
 func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
+	s.pathAge++
 	if playerSeen(m, l) {
+		// Try to generate a new path if the player is seen and our
+		// last one is stale.
+		if s.pathAge > maxPathAge {
+			s.path = getPath(l.Collisions, m.Pos(), l.Player.Pos())
+			s.pathAge = 0
+			s.pathIdx = 0
+		}
 		s.durSinceLastContact = time.Duration(0)
 		ns = s
 	}
@@ -171,13 +190,27 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		ns = s
 	}
 	if ns != nil {
-		// Chase player! Maybe swing!
-		tv := mgl32.Vec2{l.Player.Pos().X, l.Player.Pos().Y}
-		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
-		if tv.Sub(mv).Len() < 1 {
-			// return swing state
+		pv := mgl32.Vec2{l.Player.Pos().X, l.Player.Pos().Y}
+		if m.ShouldSwing(pv) {
+			// Return Swing state.
 		}
+
+		// We've passed the end of the path; there's nothing left to do.
+		// Hopefully a new path will be generated within a few frames.
+		if s.pathIdx == len(s.path) {
+			return ns
+		}
+
+		// Chase player!
+		tv := mgl32.Vec2{
+			l.Collisions.InversePosition(s.path[s.pathIdx].X, 0.5),
+			l.Collisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
+		}
+		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
 		MoveMob(m, tv.Sub(mv).Normalize().Mul(m.Speed()), l)
+		if tv.Sub(mv).Len() < 1 { // Close enough
+			s.pathIdx++
+		}
 	}
 	return ns
 }
@@ -198,4 +231,19 @@ func playerSeen(m Mob, l *Level) bool {
 		return true
 	}
 	return false
+}
+
+// getPath maps the provided start and end "world" coordinations into discrete
+// grid-space, then runs A* search. The resultant slice is also in discrete
+// grid-space, since portions of this slice may be thrown away. Calling
+// code should therefore map back to "world" coordinates for use when moving.
+func getPath(g *twodee.Grid, s, e twodee.Point) []twodee.GridPoint {
+	// Need to map from points in the game to locations on the grid board.
+	sx, sy := g.GridPosition(s.X, 0.5), g.GridPosition(s.Y, 0.5)
+	ex, ey := g.GridPosition(e.X, 0.5), g.GridPosition(e.Y, 0.5)
+	path, err := g.GetPath(sx, sy, ex, ey)
+	if err != nil {
+		return []twodee.GridPoint{}
+	}
+	return path
 }

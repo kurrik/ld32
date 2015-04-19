@@ -119,3 +119,8 @@ func (b *Boss) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 		Frame: frame.Frame,
 	}
 }
+
+func (b *Boss) ShouldSwing(p mgl32.Vec2) bool {
+	bv := mgl32.Vec2{b.Pos().X, b.Pos().Y}
+	return p.Sub(bv).Len() < 1
+}
