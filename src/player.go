@@ -63,10 +63,15 @@ type Player struct {
 	State     PlayerState
 }
 
-func NewPlayer(events *twodee.GameEventHandler) *Player {
+func NewPlayer(events *twodee.GameEventHandler, sheet *twodee.Spritesheet) *Player {
+	var (
+		frame = sheet.GetFrame("player_00")
+	)
 	return &Player{
 		AnimatingEntity: twodee.NewAnimatingEntity(
-			0, 0, 1, 1, 0,
+			0, 0,
+			frame.Width, frame.Height,
+			0.0,
 			twodee.Step10Hz,
 			PlayerAnimations[Standing|Up],
 		),
