@@ -15,13 +15,13 @@
 package main
 
 type State struct {
-	Exit bool
+	Exit  bool
 	Debug bool
 }
 
 func NewState() *State {
 	return &State{
-		Exit: false,
+		Exit:  false,
 		Debug: false,
 	}
 }
