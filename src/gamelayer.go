@@ -304,7 +304,7 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 		}
 		switch event.Code {
 		case twodee.KeyX:
-			l.app.State.Exit = true
+			l.app.State.Debug = true
 		case twodee.KeyZ:
 			l.level.Player.Roll()
 		case twodee.KeyM:
