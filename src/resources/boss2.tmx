@@ -11,5 +11,8 @@
  <objectgroup name="meta">
   <object name="start" x="224" y="232" width="32" height="32"/>
   <object name="boss" type="boss2" x="223" y="63" width="32" height="32"/>
+  <object name="plate" type="009900" x="182" y="223" width="16" height="16"/>
+  <object name="plate" type="333399" x="89" y="309" width="16" height="16"/>
+  <object name="plate" type="000066" x="376" y="341" width="16" height="16"/>
  </objectgroup>
 </map>
