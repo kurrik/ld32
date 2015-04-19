@@ -202,6 +202,7 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		if s.pathIdx == len(s.path) {
 			return ns
 		}
+		fmt.Printf("Pathidx: %v\n", s.pathIdx)
 		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
 		for s.pathIdx < len(s.path) {
 			if l.BossCollisions.CanSee(mv, mgl32.Vec2{
@@ -210,6 +211,7 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 			}, 0.5, 0.5) {
 				s.pathIdx++
 			} else {
+				fmt.Printf("Can't see path position %v. Grid pos: (%v,%v) mob pos: (%v,%v)\n", s.pathIdx, s.path[s.pathIdx].X, s.path[s.pathIdx].Y, l.Collisions.GridPosition(m.Pos().X, 0.5), l.Collisions.GridPosition(m.Pos().Y, 0.5))
 				break
 			}
 		}
