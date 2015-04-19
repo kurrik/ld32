@@ -44,7 +44,7 @@ func NewApplication() (app *Application, err error) {
 		context          *twodee.Context
 		gamelayer        *GameLayer
 		menulayer        *MenuLayer
-		winbounds        = twodee.Rect(0, 0, 640, 640)
+		winbounds        = twodee.Rect(0, 0, 1024, 640)
 		counter          = twodee.NewCounter()
 		state            = NewState()
 		gameEventHandler = twodee.NewGameEventHandler(NumGameEventTypes)
