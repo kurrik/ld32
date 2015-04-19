@@ -79,7 +79,7 @@ func (l *Level) Update(elapsed time.Duration) {
 	// TODO: Probably this should update a slice of Mobs or other
 	// updateable things in the level.
 	if l.Boss != nil {
-		l.Boss.Update(elapsed, l)
+		l.Boss.Update(elapsed)
 		l.Boss.ExamineWorld(l)
 	}
 	l.Player.UpdateLevel(elapsed, l)

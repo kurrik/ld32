@@ -93,12 +93,12 @@ func (b *Boss) ExamineWorld(l *Level) {
 	newState.Enter(b)
 }
 
-func (b *Boss) Update(elapsed time.Duration, l *Level) {
+func (b *Boss) Update(elapsed time.Duration) {
 	// Hrm, should update be fed to every state in the stack?
-	//	for i := len(b.StateStack) - 1; i >= 0; i-- {
-	//		b.StateStack[i].Update(b, elapsed)
-	//	}
-	b.StateStack[len(b.StateStack)-1].Update(b, elapsed, l)
+	for i := len(b.StateStack) - 1; i >= 0; i-- {
+		b.StateStack[i].Update(b, elapsed)
+	}
+	//	b.StateStack[len(b.StateStack)-1].Update(b, elapsed)
 }
 
 func (b *Boss) Bottom() float32 {
