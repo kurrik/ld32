@@ -73,7 +73,7 @@ func NewPlayer(events *twodee.GameEventHandler, sheet *twodee.Spritesheet) *Play
 			frame.Width, frame.Height,
 			0.0,
 			twodee.Step10Hz,
-			PlayerAnimations[Standing|Up],
+			PlayerAnimations[Standing|Down],
 		),
 		events:    events,
 		dx:        0.0,
