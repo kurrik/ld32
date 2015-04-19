@@ -161,23 +161,29 @@ func (l *GameLayer) Render() {
 		l.effects.Unbind()
 		l.effects.Draw()
 
-		// Draw R,G,B line for the HUD
-		redLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.6}, mgl32.Vec2{7.7, 4.6}}, false)
-		blueLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.3}, mgl32.Vec2{7.7, 4.3}}, false)
-		greenLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4}, mgl32.Vec2{7.7, 4}}, false)
+		// Draw black lines for the color line backgrounds
+		blackLine1 := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.6}, mgl32.Vec2{7.7, 4.6}}, false)
+		blackLine2 := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.3}, mgl32.Vec2{7.7, 4.3}}, false)
+		blackLine3 := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4}, mgl32.Vec2{7.7, 4}}, false)
+
 		redStyle := &twodee.LineStyle{
 			Thickness: 0.15,
 			Color:     color.RGBA{255, 0, 0, 128},
 			Inner:     0.0,
 		}
-		blueStyle := &twodee.LineStyle{
+		greenStyle := &twodee.LineStyle{
 			Thickness: 0.15,
 			Color:     color.RGBA{0, 255, 0, 128},
 			Inner:     0.0,
 		}
-		greenStyle := &twodee.LineStyle{
+		blueStyle := &twodee.LineStyle{
 			Thickness: 0.15,
 			Color:     color.RGBA{0, 0, 255, 128},
+			Inner:     0.0,
+		}
+		blackStyle := &twodee.LineStyle{
+			Thickness: 0.15,
+			Color:     color.RGBA{0, 0, 0, 128},
 			Inner:     0.0,
 		}
 		whiteStyle := &twodee.LineStyle{
@@ -192,26 +198,46 @@ func (l *GameLayer) Render() {
 		levelGreen := l.level.Color[1]
 		levelBlue := l.level.Color[2]
 
-		// Create horizontal positioning offset for current level RGB markers
+		// Create horizontal width offset for current level RGB lines
 		levelRedOffset := (7.7 - 5.8) * levelRed
 		levelGreenOffset := (7.7 - 5.8) * levelGreen
 		levelBlueOffset := (7.7 - 5.8) * levelBlue
 
-		// Draw Vertical Marker lines for the current level's R,G,B color values
-		levelRedMarker := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + levelRedOffset, 4.6}, mgl32.Vec2{5.87 + levelRedOffset, 4.6}}, false)
-		levelGreenMarker := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + levelGreenOffset, 4.3}, mgl32.Vec2{5.87 + levelGreenOffset, 4.3}}, false)
-		levelBlueMarker := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + levelBlueOffset, 4}, mgl32.Vec2{5.87 + levelBlueOffset, 4}}, false)
+		// Draw colored lines for the current level's R,G,B color values
+		levelRedLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.6}, mgl32.Vec2{5.8 + levelRedOffset, 4.6}}, false)
+		levelGreenLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.3}, mgl32.Vec2{5.8 + levelGreenOffset, 4.3}}, false)
+		levelBlueLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4}, mgl32.Vec2{5.8 + levelBlueOffset, 4}}, false)
+
+		var bossRed, bossGreen, bossBlue float32 = 0.0, 0.0, 0.0
+
+		// Get current boss RGB color components
+		if l.level.Boss != nil {
+			bossRed = l.level.Boss.Color[0]
+			bossGreen = l.level.Boss.Color[1]
+			bossBlue = l.level.Boss.Color[2]
+		}
+
+		// Create horizontal positioning offset for current boss RGB markers
+		bossRedOffset := (7.7 - 5.8) * bossRed
+		bossGreenOffset := (7.7 - 5.8) * bossGreen
+		bossBlueOffset := (7.7 - 5.8) * bossBlue
+
+		// Draw white markers for the current boss's R,G,B color values
+		bossRedLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + bossRedOffset, 4.6}, mgl32.Vec2{5.87 + bossRedOffset, 4.6}}, false)
+		bossGreenLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + bossGreenOffset, 4.3}, mgl32.Vec2{5.87 + bossGreenOffset, 4.3}}, false)
+		bossBlueLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + bossBlueOffset, 4}, mgl32.Vec2{5.87 + bossBlueOffset, 4}}, false)
 
 		l.lines.Bind()
-		l.lines.Draw(redLine, modelview, redStyle)
-		l.lines.Draw(greenLine, modelview, greenStyle)
-		l.lines.Draw(blueLine, modelview, blueStyle)
-		l.lines.Draw(levelRedMarker, modelview, whiteStyle)
-		l.lines.Draw(levelGreenMarker, modelview, whiteStyle)
-		l.lines.Draw(levelBlueMarker, modelview, whiteStyle)
+		l.lines.Draw(blackLine1, modelview, blackStyle)
+		l.lines.Draw(blackLine2, modelview, blackStyle)
+		l.lines.Draw(blackLine3, modelview, blackStyle)
+		l.lines.Draw(levelRedLine, modelview, redStyle)
+		l.lines.Draw(levelGreenLine, modelview, greenStyle)
+		l.lines.Draw(levelBlueLine, modelview, blueStyle)
+		l.lines.Draw(bossRedLine, modelview, whiteStyle)
+		l.lines.Draw(bossGreenLine, modelview, whiteStyle)
+		l.lines.Draw(bossBlueLine, modelview, whiteStyle)
 		l.lines.Unbind()
-
-		// fmt.Printf("Current World color: %v\n", l.level.Color)
 	}
 }
 
