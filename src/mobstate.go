@@ -211,8 +211,9 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 				break
 			}
 		}
-		s.pathIdx-- // Last visible path node.
+		s.pathIdx = MaxInt(0, s.pathIdx-1) // Last visible node but never go negative...
 		// Chase player!
+		//		fmt.Println("Have path idx %v, path %v", s.pathIdx, s.path)
 		tv := mgl32.Vec2{
 			l.Collisions.InversePosition(s.path[s.pathIdx].X, 0.5),
 			l.Collisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
@@ -256,4 +257,11 @@ func getPath(g *twodee.Grid, s, e twodee.Point) []twodee.GridPoint {
 		return []twodee.GridPoint{}
 	}
 	return path
+}
+
+func MaxInt(x, y int) int {
+	if x >= y {
+		return x
+	}
+	return y
 }
