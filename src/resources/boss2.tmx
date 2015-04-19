@@ -5,7 +5,7 @@
  </tileset>
  <layer name="ground" width="40" height="40">
   <data encoding="base64" compression="zlib">
-   eJztllsOwiAQRdlCa337o3El3YHGDfja/xbEpBPJBAYYnjZ8nLShjlxOpoVRCDE2onGcOCn3Nnx+a4PKJiLOw12Pzd3ZUGcax8849a4Z4X+6QsAaqHx9Yah8Jd2pDk35cnoaiGemfKXdAb7+qLWmgOvvLblIngwnPrXc/rtNc1wZTnxquf5ekrvkoYwtHP3pamP7q73/lpJdIOtE/r7v8EqyD+SQ0B/k69AVj6njunypvn+Qb/Dw1Rfwh51RYNcp/AH/1H8u7nSec/jDPWXqObiq/Zqr/3Bf6XzqxsAfte/Mtf82Inz/2DrMw90/at9/czHX80s7P4f58zkDh9Sa8tXQg1S2Gt5hW76SDl2yNRqNHx8Cs+E+
+   eJztllkOwiAQhrlCF7UuLxpP0htovIDb/a8gJp1IJjDAUBYbHr7UTB3782UqjEKIsTIbx4mT8tmGz3dtuOaLCbUeW7azoc9Ux/c4/a4Z4XeaTMAaqHxtZqh8Od2pDk35UnrqiXumfLndAb7+qLXGgOvvLblIngwnPr3c+btNz7gynPj0cv29JHfJQ6l1jv50vXP7K33+VpJdIJtI/r7v8FqyD+QQ0R/ka9AV19S6Ll+s/z/I13v4ajP4w84osOsY/oB/mj8XdzrPKfzhmTLNHFzVeU01f3iudD51NfBH7TtLnb9BhO8fW4fncPeP0vffVCz1/FLPz2H+fM7AIb2mfCXMIJWthHfYli+nQ5dslUrlxwf2JuGA
   </data>
  </layer>
  <objectgroup name="meta">
@@ -27,7 +27,7 @@
   <object name="plate" type="00ff00" x="320" y="384" width="16" height="16"/>
   <object name="plate" type="0000ff" x="368" y="384" width="16" height="16"/>
  </objectgroup>
- <layer name="collision" width="40" height="40" opacity="0.3">
+ <layer name="collision" width="40" height="40" visible="0" opacity="0.3">
   <data encoding="base64" compression="zlib">
    eJztlkEKACEMxPo1//8pT2Vvoh1Yx5JAjqURPHRExEDEbW/h3Ja83OcCfRrVPuUt1T2d+nK2ysmOjv/vL+jToE+DPg36NOjToE+ja5/7ferel7NV1PvZ4Q+u2l7ou9m404aInxPcaJ5x
   </data>

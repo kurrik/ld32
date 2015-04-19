@@ -14,6 +14,7 @@ build_aesprite() {
 
 build_aesprite numbered_squares
 build_aesprite player
+build_aesprite boss
 cp assets/*.png tmp/
 
 TexturePacker \

@@ -23,6 +23,17 @@ import (
 	"../lib/twodee"
 )
 
+type BossState int32
+
+const (
+	_                = iota
+	Normal BossState = 1 << iota
+)
+
+var BossAnimations = map[BossState][]int{
+	Normal: []int{0, 1},
+}
+
 var BossMap = map[string]BossMaker{
 	"boss1": MakeBoss1,
 	"boss2": MakeBoss2,
@@ -76,8 +87,8 @@ func NewBoss(m *Mobile, colors []mgl32.Vec3, events *twodee.GameEventHandler) *B
 	b := &Boss{
 		AnimatingEntity: twodee.NewAnimatingEntity(
 			0, 0, 1, 1, 0,
-			twodee.Step10Hz,
-			PlayerAnimations[Standing|Up],
+			twodee.Step5Hz,
+			BossAnimations[Normal],
 		),
 		Mobile:     m,
 		dx:         0.0,
@@ -121,6 +132,7 @@ func (b *Boss) ExamineWorld(l *Level) {
 }
 
 func (b *Boss) Update(elapsed time.Duration) {
+	b.AnimatingEntity.Update(elapsed)
 	// Hrm, should update be fed to every state in the stack?
 	for i := len(b.StateStack) - 1; i >= 0; i-- {
 		b.StateStack[i].Update(b, elapsed)
@@ -133,7 +145,7 @@ func (b *Boss) Bottom() float32 {
 }
 
 func (b *Boss) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
-	frame := sheet.GetFrame(fmt.Sprintf("numbered_squares_%02d", b.Frame()))
+	frame := sheet.GetFrame(fmt.Sprintf("boss_%02d", b.Frame()))
 	pt := b.Pos()
 	scaleX := float32(1.0)
 	// Implement facing left...
@@ -144,6 +156,7 @@ func (b *Boss) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 			scaleX, 1.0, 1.0,
 		},
 		Frame: frame.Frame,
+		Color: b.Color.Vec4(1.0),
 	}
 }
 
