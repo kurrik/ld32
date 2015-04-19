@@ -29,6 +29,7 @@ const (
 	Standing PlayerState = 1 << iota
 	Walking
 	Rolling
+	Dying
 	Left
 	Right
 	Up
@@ -48,6 +49,7 @@ var PlayerAnimations = map[PlayerState][]int{
 	Rolling | Down:   []int{14, 15, 16, 17, 18},
 	Rolling | Left:   []int{9, 10, 11, 12, 13},
 	Rolling | Right:  []int{9, 10, 11, 12, 13},
+	Dying:            []int{24, 24, 24, 25, 25, 25, 26, 26, 26, 27, 27, 27, 27, 27, 27},
 }
 
 type Player struct {
@@ -61,6 +63,7 @@ type Player struct {
 	rollspeed float32
 	rolling   bool
 	State     PlayerState
+	Dead      bool
 }
 
 func NewPlayer(events *twodee.GameEventHandler, sheet *twodee.Spritesheet) *Player {
@@ -81,6 +84,7 @@ func NewPlayer(events *twodee.GameEventHandler, sheet *twodee.Spritesheet) *Play
 		speed:     0.05,
 		rollspeed: 0.10,
 		rolling:   false,
+		Dead:      false,
 		State:     Standing | Up,
 	}
 }
@@ -115,31 +119,33 @@ func (p *Player) UpdateLevel(elapsed time.Duration, level *Level) {
 	var (
 		isMoving = p.dx != 0 || p.dy != 0
 	)
-	if !p.rolling && isMoving {
-		var (
-			magX = math.Abs(float64(p.dx))
-			magY = math.Abs(float64(p.dy))
-		)
-		p.swapState(Rolling|Standing, Walking)
-		if magX > magY {
-			if p.dx > 0 {
-				p.swapState(Left|Up|Down, Right)
+	if !p.Dead {
+		if !p.rolling && isMoving {
+			var (
+				magX = math.Abs(float64(p.dx))
+				magY = math.Abs(float64(p.dy))
+			)
+			p.swapState(Rolling|Standing, Walking)
+			if magX > magY {
+				if p.dx > 0 {
+					p.swapState(Left|Up|Down, Right)
+				} else {
+					p.swapState(Up|Right|Down, Left)
+				}
 			} else {
-				p.swapState(Up|Right|Down, Left)
+				if p.dy > 0 {
+					p.swapState(Left|Right|Down, Up)
+				} else {
+					p.swapState(Left|Up|Right, Down)
+				}
 			}
+			p.move(mgl32.Vec2{p.dx, p.dy}.Normalize().Mul(p.speed), level)
+		} else if p.rolling && isMoving {
+			p.swapState(Walking|Standing, Rolling)
+			p.move(mgl32.Vec2{p.rolldx, p.rolldy}.Normalize().Mul(p.rollspeed), level)
 		} else {
-			if p.dy > 0 {
-				p.swapState(Left|Right|Down, Up)
-			} else {
-				p.swapState(Left|Up|Right, Down)
-			}
+			p.swapState(Rolling|Walking, Standing)
 		}
-		p.move(mgl32.Vec2{p.dx, p.dy}.Normalize().Mul(p.speed), level)
-	} else if p.rolling && isMoving {
-		p.swapState(Walking|Standing, Rolling)
-		p.move(mgl32.Vec2{p.rolldx, p.rolldy}.Normalize().Mul(p.rollspeed), level)
-	} else {
-		p.swapState(Rolling|Walking, Standing)
 	}
 	p.AnimatingEntity.Update(elapsed)
 }
@@ -164,6 +170,13 @@ func (p *Player) MoveX(mag float32) {
 
 func (p *Player) MoveY(mag float32) {
 	p.dy = mag
+}
+
+func (p *Player) Die() {
+	if !p.Dead {
+		p.Dead = true
+		p.swapState(Left|Right|Down|Up|Walking|Rolling|Standing, Dying)
+	}
 }
 
 func (p *Player) Roll() {

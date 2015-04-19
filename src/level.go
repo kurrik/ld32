@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"time"
+	"fmt"
 )
 
 type Level struct {
@@ -100,7 +101,7 @@ func (l *Level) Update(elapsed time.Duration) {
 	if l.Boss != nil {
 		l.Boss.Update(elapsed)
 		l.Boss.ExamineWorld(l)
-		if l.Boss.Bounds().Overlaps(l.Player.Bounds()) {
+		if !l.Player.Dead && l.Boss.Bounds().Overlaps(l.Player.Bounds()) {
 			l.events.Enqueue(NewPlayerDiedEvent())
 		}
 	}
