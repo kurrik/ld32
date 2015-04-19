@@ -67,10 +67,23 @@ func NewLevel(mapPath string, sheet *twodee.Spritesheet, events *twodee.GameEven
 
 func (l *Level) changeColor(e twodee.GETyper) {
 	if event, ok := e.(*ColorEvent); ok {
+		var (
+			sentEvent = false
+		)
 		if event.Add {
 			l.Color = l.Color.Add(event.Color)
 		} else {
 			l.Color = l.Color.Sub(event.Color)
+		}
+		if l.Boss != nil {
+			if l.Color.Sub(l.Boss.Color).Len() < 0.1 {
+				l.Boss.NextColor()
+				l.events.Enqueue(NewShakeEvent(2, 1000, 1.0, 10.0, 1.0))
+				sentEvent = true
+			}
+		}
+		if !sentEvent {
+			l.events.Enqueue(NewShakeEvent(1, 200, 0.4, 2.0, 1.0))
 		}
 	}
 }
