@@ -31,7 +31,8 @@ out vec4 v_FragData;
 
 void main() {
   v_FragData = clamp(
-    vec4(v_Color, 1.0) + texture(u_TextureUnit, v_TextureCoordinates),
+    vec4(clamp(v_Color, 0.0, 0.5), 1.0) +
+      texture(u_TextureUnit, v_TextureCoordinates),
     0.0,
     1.0);
 }` + "\x00"
