@@ -16,6 +16,7 @@ package main
 
 import (
 	twodee "../lib/twodee"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 const (
@@ -23,9 +24,25 @@ const (
 	PauseMusic
 	ResumeMusic
 	ShakeCamera
+	ChangeColor
 	SENTINEL
 )
 
 const (
 	NumGameEventTypes = int(SENTINEL)
 )
+
+type ColorEvent struct {
+	twodee.BasicGameEvent
+	Color mgl32.Vec3
+	Add   bool
+}
+
+func NewColorEvent(color mgl32.Vec3, add bool) (e *ColorEvent) {
+	e = &ColorEvent{
+		*twodee.NewBasicGameEvent(ChangeColor),
+		color,
+		add,
+	}
+	return
+}
