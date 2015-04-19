@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"github.com/go-gl/mathgl/mgl32"
 	"io/ioutil"
+	"image/color"
 	"math"
 	"time"
 )
@@ -33,6 +34,7 @@ type GameLayer struct {
 	cameraBounds    twodee.Rectangle
 	camera          *twodee.Camera
 	sprite          *twodee.SpriteRenderer
+	lines           *twodee.LinesRenderer
 	batch           *twodee.BatchRenderer
 	effects         *EffectsRenderer
 	app             *Application
@@ -40,6 +42,7 @@ type GameLayer struct {
 	spritetexture   *twodee.Texture
 	level           *Level
 	shakeObserverId int
+	lineSegments    []mgl32.Vec2
 }
 
 func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, err error) {
@@ -59,6 +62,7 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 			"boss1": "resources/boss1.tmx",
 			"boss2": "resources/boss2.tmx",
 		},
+		lineSegments: []mgl32.Vec2{mgl32.Vec2{0, 0}},
 	}
 	layer.shakeObserverId = app.GameEventHandler.AddObserver(ShakeCamera, layer.shakeCamera)
 	err = layer.Reset()
@@ -71,6 +75,9 @@ func (l *GameLayer) Reset() (err error) {
 		return
 	}
 	if l.sprite, err = twodee.NewSpriteRenderer(l.camera); err != nil {
+		return
+	}
+	if l.lines, err = twodee.NewLinesRenderer(l.camera); err != nil {
 		return
 	}
 	if l.effects, err = NewEffectsRenderer(512, 320, 1.0); err != nil {
@@ -112,6 +119,10 @@ func (l *GameLayer) Delete() {
 		l.spritetexture.Delete()
 		l.spritetexture = nil
 	}
+	if l.lines != nil {
+		l.lines.Delete()
+		l.lines = nil
+	}
 	if l.effects != nil {
 		l.effects.Delete()
 		l.effects = nil
@@ -143,6 +154,19 @@ func (l *GameLayer) Render() {
 		l.spritetexture.Unbind()
 		l.effects.Unbind()
 		l.effects.Draw()
+
+		if len(l.lineSegments) > 1 {
+			line := twodee.NewLineGeometry(l.lineSegments, false)
+			style := &twodee.LineStyle{
+				Thickness: 0.2,
+				Color: color.RGBA{255, 0, 0, 128},
+				Inner: 0.0,
+			}
+			modelview := mgl32.Ident4()
+			l.lines.Bind()
+			l.lines.Draw(line, modelview, style)
+			l.lines.Unbind()
+		}
 	}
 }
 
