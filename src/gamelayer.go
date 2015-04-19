@@ -18,7 +18,7 @@ import (
 	"../lib/twodee"
 	"fmt"
 	"github.com/go-gl/mathgl/mgl32"
-	"image/color"
+	// "image/color"
 	"io/ioutil"
 	"math"
 	"time"
@@ -33,15 +33,16 @@ type GameLayer struct {
 	shake              *twodee.ContinuousAnimation
 	cameraBounds       twodee.Rectangle
 	camera             *twodee.Camera
-	linesCamera     *twodee.Camera
+	linesCamera        *twodee.Camera
 	sprite             *twodee.SpriteRenderer
-	lines           *twodee.LinesRenderer
+	lines              *twodee.LinesRenderer
 	batch              *twodee.BatchRenderer
 	effects            *EffectsRenderer
 	app                *Application
 	spritesheet        *twodee.Spritesheet
 	spritetexture      *twodee.Texture
 	level              *Level
+	hud                *Hud
 	shakeObserverId    int
 	shakePriority      int32
 	bossDiedObserverId int
@@ -52,11 +53,15 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 		camera       *twodee.Camera
 		linesCamera  *twodee.Camera
 		cameraBounds = twodee.Rect(-8, -5, 8, 5)
+		hud          *Hud
 	)
 	if camera, err = twodee.NewCamera(cameraBounds, winb); err != nil {
 		return
 	}
 	if linesCamera, err = twodee.NewCamera(cameraBounds, winb); err != nil {
+		return
+	}
+	if hud, err = newHud(); err != nil {
 		return
 	}
 	layer = &GameLayer{
@@ -70,6 +75,7 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 			"boss2": "resources/boss2.tmx",
 		},
 		shakePriority: -1,
+		hud:           hud,
 	}
 	layer.shakeObserverId = app.GameEventHandler.AddObserver(ShakeCamera, layer.shakeCamera)
 	layer.bossDiedObserverId = app.GameEventHandler.AddObserver(BossDied, layer.bossDied)
@@ -166,82 +172,20 @@ func (l *GameLayer) Render() {
 		l.effects.Unbind()
 		l.effects.Draw()
 
-		// Draw black lines for the color line backgrounds
-		blackLine1 := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.6}, mgl32.Vec2{7.7, 4.6}}, false)
-		blackLine2 := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.3}, mgl32.Vec2{7.7, 4.3}}, false)
-		blackLine3 := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4}, mgl32.Vec2{7.7, 4}}, false)
-
-		redStyle := &twodee.LineStyle{
-			Thickness: 0.15,
-			Color:     color.RGBA{255, 0, 0, 128},
-			Inner:     0.0,
-		}
-		greenStyle := &twodee.LineStyle{
-			Thickness: 0.15,
-			Color:     color.RGBA{0, 255, 0, 128},
-			Inner:     0.0,
-		}
-		blueStyle := &twodee.LineStyle{
-			Thickness: 0.15,
-			Color:     color.RGBA{0, 0, 255, 128},
-			Inner:     0.0,
-		}
-		blackStyle := &twodee.LineStyle{
-			Thickness: 0.15,
-			Color:     color.RGBA{0, 0, 0, 128},
-			Inner:     0.0,
-		}
-		whiteStyle := &twodee.LineStyle{
-			Thickness: 0.15,
-			Color:     color.RGBA{255, 255, 255, 128},
-			Inner:     0.0,
-		}
 		modelview := mgl32.Ident4()
 
-		// Get current level RGB color components
-		levelRed := l.level.Color[0]
-		levelGreen := l.level.Color[1]
-		levelBlue := l.level.Color[2]
-
-		// Create horizontal width offset for current level RGB lines
-		levelRedOffset := (7.7 - 5.8) * levelRed
-		levelGreenOffset := (7.7 - 5.8) * levelGreen
-		levelBlueOffset := (7.7 - 5.8) * levelBlue
-
-		// Draw colored lines for the current level's R,G,B color values
-		levelRedLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.6}, mgl32.Vec2{5.8 + levelRedOffset, 4.6}}, false)
-		levelGreenLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.3}, mgl32.Vec2{5.8 + levelGreenOffset, 4.3}}, false)
-		levelBlueLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4}, mgl32.Vec2{5.8 + levelBlueOffset, 4}}, false)
-
-		var bossRed, bossGreen, bossBlue float32 = 0.0, 0.0, 0.0
-
-		// Get current boss RGB color components
-		if l.level.Boss != nil {
-			bossRed = l.level.Boss.Color[0]
-			bossGreen = l.level.Boss.Color[1]
-			bossBlue = l.level.Boss.Color[2]
-		}
-
-		// Create horizontal positioning offset for current boss RGB markers
-		bossRedOffset := (7.7 - 5.8) * bossRed
-		bossGreenOffset := (7.7 - 5.8) * bossGreen
-		bossBlueOffset := (7.7 - 5.8) * bossBlue
-
-		// Draw white markers for the current boss's R,G,B color values
-		bossRedLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + bossRedOffset, 4.6}, mgl32.Vec2{5.87 + bossRedOffset, 4.6}}, false)
-		bossGreenLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + bossGreenOffset, 4.3}, mgl32.Vec2{5.87 + bossGreenOffset, 4.3}}, false)
-		bossBlueLine := twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + bossBlueOffset, 4}, mgl32.Vec2{5.87 + bossBlueOffset, 4}}, false)
+		l.hud.UpdateLines(l.level)
 
 		l.lines.Bind()
-		l.lines.Draw(blackLine1, modelview, blackStyle)
-		l.lines.Draw(blackLine2, modelview, blackStyle)
-		l.lines.Draw(blackLine3, modelview, blackStyle)
-		l.lines.Draw(levelRedLine, modelview, redStyle)
-		l.lines.Draw(levelGreenLine, modelview, greenStyle)
-		l.lines.Draw(levelBlueLine, modelview, blueStyle)
-		l.lines.Draw(bossRedLine, modelview, whiteStyle)
-		l.lines.Draw(bossGreenLine, modelview, whiteStyle)
-		l.lines.Draw(bossBlueLine, modelview, whiteStyle)
+		l.lines.Draw(l.hud.blackLine1, modelview, l.hud.blackStyle)
+		l.lines.Draw(l.hud.blackLine2, modelview, l.hud.blackStyle)
+		l.lines.Draw(l.hud.blackLine3, modelview, l.hud.blackStyle)
+		l.lines.Draw(l.hud.levelRedLine, modelview, l.hud.redStyle)
+		l.lines.Draw(l.hud.levelGreenLine, modelview, l.hud.greenStyle)
+		l.lines.Draw(l.hud.levelBlueLine, modelview, l.hud.blueStyle)
+		l.lines.Draw(l.hud.bossRedLine, modelview, l.hud.whiteStyle)
+		l.lines.Draw(l.hud.bossGreenLine, modelview, l.hud.whiteStyle)
+		l.lines.Draw(l.hud.bossBlueLine, modelview, l.hud.whiteStyle)
 		l.lines.Unbind()
 	}
 }
