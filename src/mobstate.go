@@ -210,20 +210,20 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 			}, 0.5, 0.5) {
 				s.pathIdx++
 			} else {
+				//				fmt.Printf("Can't see path position %v. Grid pos: (%v,%v) mob pos: (%v,%v)\n", s.pathIdx, s.path[s.pathIdx].X, s.path[s.pathIdx].Y, l.Collisions.GridPosition(m.Pos().X, 0.5), l.Collisions.GridPosition(m.Pos().Y, 0.5))
 				break
 			}
 		}
+		// TODO: This can probably just be s.pathIdx-- now, since A*
+		// should never build a path in which we can't see the first
+		// grid position.
 		s.pathIdx = MaxInt(0, s.pathIdx-1) // Last visible node but never go negative...
 		// Chase player!
-		//		fmt.Println("Have path idx %v, path %v", s.pathIdx, s.path)
 		tv := mgl32.Vec2{
 			l.BossCollisions.InversePosition(s.path[s.pathIdx].X, 0.5),
 			l.BossCollisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
 		}
 		MoveMob(m, tv.Sub(mv).Normalize().Mul(m.Speed()), l)
-		if tv.Sub(mv).Len() < 1 { // Close enough
-			s.pathIdx++
-		}
 	}
 	return ns
 }
