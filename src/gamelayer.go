@@ -29,21 +29,22 @@ const (
 )
 
 type GameLayer struct {
-	levels          map[string]string
-	shake           *twodee.ContinuousAnimation
-	cameraBounds    twodee.Rectangle
-	camera          *twodee.Camera
+	levels             map[string]string
+	shake              *twodee.ContinuousAnimation
+	cameraBounds       twodee.Rectangle
+	camera             *twodee.Camera
 	linesCamera     *twodee.Camera
-	sprite          *twodee.SpriteRenderer
+	sprite             *twodee.SpriteRenderer
 	lines           *twodee.LinesRenderer
-	batch           *twodee.BatchRenderer
-	effects         *EffectsRenderer
-	app             *Application
-	spritesheet     *twodee.Spritesheet
-	spritetexture   *twodee.Texture
-	level           *Level
-	shakeObserverId int
-	shakePriority   int32
+	batch              *twodee.BatchRenderer
+	effects            *EffectsRenderer
+	app                *Application
+	spritesheet        *twodee.Spritesheet
+	spritetexture      *twodee.Texture
+	level              *Level
+	shakeObserverId    int
+	shakePriority      int32
+	bossDiedObserverId int
 }
 
 func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, err error) {
@@ -71,6 +72,7 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 		shakePriority: -1,
 	}
 	layer.shakeObserverId = app.GameEventHandler.AddObserver(ShakeCamera, layer.shakeCamera)
+	layer.bossDiedObserverId = app.GameEventHandler.AddObserver(BossDied, layer.bossDied)
 	err = layer.Reset()
 	return
 }
@@ -104,6 +106,9 @@ func (l *GameLayer) loadLevel(name string) (err error) {
 	)
 	if path, ok = l.levels[name]; !ok {
 		return fmt.Errorf("Invalid level: %v", name)
+	}
+	if l.level != nil {
+		l.level.Delete()
 	}
 	if l.level, err = NewLevel(path, l.spritesheet, l.app.GameEventHandler); err != nil {
 		return
@@ -306,6 +311,10 @@ func (l *GameLayer) shakeCamera(e twodee.GETyper) {
 			l.shakePriority = event.Priority
 		}
 	}
+}
+
+func (l *GameLayer) bossDied(e twodee.GETyper) {
+	l.loadLevel("main")
 }
 
 func (l *GameLayer) HandleEvent(evt twodee.Event) bool {

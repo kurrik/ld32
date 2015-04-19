@@ -5,17 +5,22 @@
  </tileset>
  <layer name="ground" width="100" height="100">
   <data encoding="base64" compression="zlib">
-   eJzt18EKwjAQRdFau+z/f68IFrowOIuavJKzOOBGCbnOlO7LsjwAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4IbWj9HnQI9E7xZbwDlmsBd7VOaj8lvocSfVHpV9pUe/HuZDjxnpkUWPLJU73PSI6mE+9JiVHln0yKJHFj2y6JHF+0cW85FFjyz2VRbzkaV1h+vJ88tnPfr1WIv06NvjPBd6jO9hPu7Ro/UM0WNMD/PRt8fx/289P1rvI3r8p8evPWU+MnrYV+OaHDtJi5wmPb7LtfeqRU4TLfo1qRh9TgBgLi/wnisD
+   eJzt21tuwjAQQNH03VI228cGSrvwBqmRRogAcRI8lc/H+QUPl2CMwrbruhsAAAAAAAAAAAAAAAAAAAAAAABW8di7PfBgPeZPup7W58+2nv88/1tv8+djgfXc6VE8/77Fe3iMz8Imro/58x+2mNNEj3nzj7UobaJH+fznWpQ00aNs/ktbTG2ix/T5p7aY0qT1Ht+9nyOv2+aEkhalj73rfSV4nWo3yaDFFrHJy4XmtNtNeJ5WW5S0K2nS8vs9WxMt8jTRIk8TLfI00SJPEy3qi2frls7UWcUerwnW07p9j3s90vB5lcuzHqls9Ugl9nhKsJ7WxR728/r0yMX3q1zi+cP+UZ/zeS565BI/r+wfdS11PzXLthj+I6BJ/RbHaFKnRbwuNKkj/p57jv19ffH3kTHDdeN8uL5j96KPcR65To/h/T+2fziPXM+pe+FiH/f+5GiiRa4mWtRt4v8bAAAA0/wCtCpZJw==
   </data>
  </layer>
  <objectgroup name="meta">
   <object name="start" x="816" y="1357" width="32" height="32"/>
-  <object name="sprite" type="temple.fw" x="703" y="800" width="256" height="128"/>
-  <object name="portal" type="boss1" x="815" y="879" width="32" height="48"/>
+  <object name="sprite" type="temple.fw" x="418" y="624" width="256" height="128"/>
+  <object name="portal" type="boss1" x="526" y="707" width="32" height="48"/>
+  <object name="sprite" type="temple.fw" x="990" y="624" width="256" height="128"/>
+  <object name="portal" type="boss2" x="1103" y="707" width="32" height="48"/>
+  <object name="plate" type="ff0000" x="762" y="916" width="16" height="16"/>
+  <object name="plate" type="0000ff" x="886" y="916" width="16" height="16"/>
+  <object name="plate" type="00ff00" x="824" y="916" width="16" height="16"/>
  </objectgroup>
- <layer name="collision" width="100" height="100" opacity="0.48">
+ <layer name="collision" width="100" height="100">
   <data encoding="base64" compression="zlib">
-   eJzt20sNgDAABUEk4F8tFug3e5hJMPA2tKc+DwAAAAAAAAAAAAAAAAAAAAAAAACMexc/9tKjRY+W2QZ6nOH/aPm7sx536NGiBwAjdp797pF1erTo0aJHix4terTo0aJHix4terTo0aJHix4terTo0aJHix4terTo0aJHix4terTo0aJHix4terTo0aJHix49O3bUYq+VPbU4Y2ZXLc4a2VeLO7w5BwCKPlzCC/E=
+   eJztwTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbnEAAAQ==
   </data>
  </layer>
 </map>
