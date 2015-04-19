@@ -162,21 +162,30 @@ func NewHuntState() *HuntState {
 
 // ExamineWorld returns the current state if the player is currently seen or
 // the mob is not yet tired of chasing. Otherwise, it returns nil.
-func (h *HuntState) ExamineWorld(m Mob, l *Level) MobState {
+func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 	if playerSeen(m, l) {
-		h.durSinceLastContact = time.Duration(0)
-		return h
+		s.durSinceLastContact = time.Duration(0)
+		ns = s
 	}
-	if !m.Bored(h.durSinceLastContact) {
-		return h
+	if !m.Bored(s.durSinceLastContact) {
+		ns = s
 	}
-	return nil
+	if ns != nil {
+		// Chase player! Maybe swing!
+		tv := mgl32.Vec2{l.Player.Pos().X, l.Player.Pos().Y}
+		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
+		if tv.Sub(mv).Len() < 1 {
+			// return swing state
+		}
+		MoveMob(m, tv.Sub(mv).Normalize().Mul(m.Speed()), l)
+	}
+	return ns
 }
 
 // Update resets the player's hiding timer if the player is seen, otherwise it
 // increments.
-func (h *HuntState) Update(m Mob, d time.Duration) {
-	h.durSinceLastContact += d
+func (s *HuntState) Update(m Mob, d time.Duration) {
+	s.durSinceLastContact += d
 }
 
 // playerSeen returns true if the player is currently visible to the mob and
