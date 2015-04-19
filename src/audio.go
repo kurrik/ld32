@@ -50,7 +50,7 @@ func (a *AudioSystem) Delete() {
 func NewAudioSystem(app *Application) (audioSystem *AudioSystem, err error) {
 	var bgm *twodee.Music
 
-	if bgm, err = twodee.NewMusic("resources/music/bgm1.ogg"); err != nil {
+	if bgm, err = twodee.NewMusic("resources/music/Shrine_Theme_Rough.ogg"); err != nil {
 		return
 	}
 	audioSystem = &AudioSystem{
