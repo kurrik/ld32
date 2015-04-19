@@ -119,6 +119,10 @@ func (l *GameLayer) Delete() {
 	if l.shakeObserverId != 0 {
 		l.app.GameEventHandler.RemoveObserver(ShakeCamera, l.shakeObserverId)
 	}
+	if l.level != nil {
+		l.level.Delete()
+		l.level = nil
+	}
 }
 
 func (l *GameLayer) Render() {
@@ -130,7 +134,12 @@ func (l *GameLayer) Render() {
 		}
 		l.batch.Unbind()
 		l.spritetexture.Bind()
-		l.sprite.Draw(l.level.Props.SpriteConfigs(l.spritesheet))
+		if len(l.level.Plates) > 0 {
+			l.sprite.Draw(l.level.Plates.SpriteConfigs(l.spritesheet))
+		}
+		if len(l.level.Props) > 0 {
+			l.sprite.Draw(l.level.Props.SpriteConfigs(l.spritesheet))
+		}
 		l.spritetexture.Unbind()
 		l.effects.Unbind()
 		l.effects.Draw()
@@ -151,6 +160,7 @@ func (l *GameLayer) Update(elapsed time.Duration) {
 			l.loadLevel(level)
 		}
 	}
+	l.effects.Color = l.level.Color
 }
 
 func (l *GameLayer) updateCamera(scale float32) {
@@ -219,8 +229,6 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			} else {
 				l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PauseMusic))
 			}
-		case twodee.KeyC:
-			l.effects.Color = l.effects.Color.Add(mgl32.Vec3{0.1, 0.0, 0.0})
 		case twodee.Key0:
 			l.loadLevel("main")
 		case twodee.Key1:

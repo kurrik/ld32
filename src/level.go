@@ -15,22 +15,30 @@
 package main
 
 import (
-	twodee "../lib/twodee"
-	"github.com/kurrik/tmxgo"
+	"encoding/hex"
 	"io/ioutil"
 	"path/filepath"
 	"time"
+
+	"../lib/twodee"
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kurrik/tmxgo"
 )
 
 type Level struct {
-	Player     *Player
-	Props      PropList
-	Background *twodee.Batch
-	Sheet      *twodee.Spritesheet
-	Collisions *twodee.Grid
-	Portals    []Portal
-	Width      float32
-	Height     float32
+	Player          *Player
+	Boss            *Boss
+	Props           PropList
+	Background      *twodee.Batch
+	Sheet           *twodee.Spritesheet
+	Collisions      *twodee.Grid
+	Portals         []Portal
+	Plates          PropList
+	Width           float32
+	Height          float32
+	Color           mgl32.Vec3
+	events          *twodee.GameEventHandler
+	colorObserverId int
 }
 
 type Portal struct {
@@ -42,17 +50,47 @@ func NewLevel(mapPath string, sheet *twodee.Spritesheet, events *twodee.GameEven
 	level = &Level{
 		Player: NewPlayer(events),
 		Props:  NewPropList(),
+		Plates: NewPropList(),
 		Sheet:  sheet,
+		events: events,
 	}
 	level.Props = append(level.Props, level.Player)
 	if err = level.loadMap(mapPath); err != nil {
 		return
 	}
+	if level.Boss != nil {
+		level.Props = append(level.Props, level.Boss)
+	}
+	level.colorObserverId = events.AddObserver(ChangeColor, level.changeColor)
 	return
 }
 
+func (l *Level) changeColor(e twodee.GETyper) {
+	if event, ok := e.(*ColorEvent); ok {
+		if event.Add {
+			l.Color = l.Color.Add(event.Color)
+		} else {
+			l.Color = l.Color.Sub(event.Color)
+		}
+	}
+}
+
 func (l *Level) Update(elapsed time.Duration) {
-	l.Player.Update(elapsed, l)
+	// TODO: Probably this should update a slice of Mobs or other
+	// updateable things in the level.
+	if l.Boss != nil {
+		l.Boss.Update(elapsed)
+		l.Boss.ExamineWorld(l)
+	}
+	l.Player.UpdateLevel(elapsed, l)
+	l.Plates.Update(elapsed)
+	l.Plates.CheckCollision(l.Player)
+}
+
+func (l *Level) Delete() {
+	if l.colorObserverId != 0 {
+		l.events.RemoveObserver(ChangeColor, l.colorObserverId)
+	}
 }
 
 func (l *Level) loadMap(path string) (err error) {
@@ -62,6 +100,7 @@ func (l *Level) loadMap(path string) (err error) {
 		tiles       []*tmxgo.Tile
 		textiles    []twodee.TexturedTile
 		texturepath string
+		colorbytes  []byte
 	)
 	if data, err = ioutil.ReadFile(path); err != nil {
 		return
@@ -105,6 +144,16 @@ func (l *Level) loadMap(path string) (err error) {
 					Rect:  l.getObjectBounds(m, obj),
 					Level: obj.Type,
 				})
+			case "plate":
+				if colorbytes, err = hex.DecodeString(obj.Type); err != nil {
+					return
+				}
+				color := mgl32.Vec3{
+					float32(colorbytes[0]) / 255.0,
+					float32(colorbytes[1]) / 255.0,
+					float32(colorbytes[2]) / 255.0,
+				}
+				l.Plates = append(l.Plates, NewPlate(x, y, color, l.Sheet, l.events))
 			case "sprite":
 				l.Props = append(l.Props, NewStaticProp(
 					x, y,
@@ -113,6 +162,9 @@ func (l *Level) loadMap(path string) (err error) {
 				))
 			case "start":
 				l.Player.MoveTo(twodee.Pt(x, y))
+			case "boss":
+				l.Boss = BossMap[obj.Type](x, y)
+				l.Boss.MoveTo(twodee.Pt(x, y))
 			}
 		}
 	}

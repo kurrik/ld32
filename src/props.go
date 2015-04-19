@@ -17,11 +17,15 @@ package main
 import (
 	"../lib/twodee"
 	"sort"
+	"time"
 )
 
 type Prop interface {
 	SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig
 	Bottom() float32
+	HandleCollision(p *Player)
+	Bounds() twodee.Rectangle
+	Update(elapsed time.Duration)
 }
 
 type StaticProp struct {
@@ -57,6 +61,12 @@ func (p *StaticProp) Bottom() float32 {
 	return p.Entity.Bounds().Min.Y
 }
 
+func (p *StaticProp) HandleCollision(player *Player) {
+}
+
+func (p *StaticProp) Update(elapsed time.Duration) {
+}
+
 type PropList []Prop
 
 func NewPropList() PropList {
@@ -82,4 +92,19 @@ func (l PropList) SpriteConfigs(sheet *twodee.Spritesheet) (out []twodee.SpriteC
 		out[i] = prop.SpriteConfig(sheet)
 	}
 	return
+}
+
+func (l PropList) CheckCollision(p *Player) {
+	bounds := p.Bounds()
+	for _, prop := range l {
+		if prop.Bounds().Overlaps(bounds) {
+			prop.HandleCollision(p)
+		}
+	}
+}
+
+func (l PropList) Update(elapsed time.Duration) {
+	for _, prop := range l {
+		prop.Update(elapsed)
+	}
 }

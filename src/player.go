@@ -103,7 +103,10 @@ func (p *Player) Bottom() float32 {
 	return p.AnimatingEntity.Bounds().Min.Y
 }
 
-func (p *Player) Update(elapsed time.Duration, level *Level) {
+func (p *Player) HandleCollision(player *Player) {
+}
+
+func (p *Player) UpdateLevel(elapsed time.Duration, level *Level) {
 	var (
 		isMoving = p.dx != 0 || p.dy != 0
 	)
