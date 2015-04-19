@@ -23,9 +23,9 @@
   <object name="sprite" type="column_top_48" x="416" y="432" width="48" height="32"/>
   <object name="sprite" type="column_top_48" x="416" y="144" width="48" height="32"/>
   <object name="sprite" type="column_top_48" x="176" y="144" width="48" height="32"/>
-  <object name="plate" type="ff0000" x="251" y="392" width="16" height="16"/>
-  <object name="plate" type="00ff00" x="286" y="392" width="16" height="16"/>
-  <object name="plate" type="0000ff" x="323" y="393" width="16" height="16"/>
+  <object name="plate" type="ff0000" x="272" y="384" width="16" height="16"/>
+  <object name="plate" type="00ff00" x="320" y="384" width="16" height="16"/>
+  <object name="plate" type="0000ff" x="368" y="384" width="16" height="16"/>
  </objectgroup>
  <layer name="collision" width="40" height="40" opacity="0.3">
   <data encoding="base64" compression="zlib">

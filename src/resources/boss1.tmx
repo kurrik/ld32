@@ -21,6 +21,14 @@
   <object name="sprite" type="column_top_48" x="288" y="160" width="48" height="32"/>
   <object name="sprite" type="column_top_48" x="560" y="384" width="48" height="32"/>
   <object name="sprite" type="column_top_48" x="224" y="384" width="48" height="32"/>
+  <object name="plate" type="ff0000" x="176" y="528" width="16" height="16"/>
+  <object name="plate" type="00ff00" x="304" y="528" width="16" height="16"/>
+  <object name="plate" type="fff000" x="640" y="528" width="16" height="16"/>
+  <object name="plate" type="0000ff" x="512" y="528" width="16" height="16"/>
+  <object name="plate" type="ff00ff" x="176" y="336" width="16" height="16"/>
+  <object name="plate" type="a0a0a0" x="512" y="336" width="16" height="16"/>
+  <object name="plate" type="00ffff" x="299" y="335" width="16" height="16"/>
+  <object name="plate" type="0f0f0f" x="640" y="336" width="16" height="16"/>
  </objectgroup>
  <layer name="collision" width="52" height="52" visible="0">
   <data encoding="base64" compression="zlib">
