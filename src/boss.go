@@ -106,10 +106,8 @@ func (b *Boss) NextColor() {
 	if len(b.Colors) > 0 {
 		b.Color = b.Colors[0]
 		b.Colors = b.Colors[1:]
-		fmt.Printf("Next boss color: %v\n", b.Color)
 		b.events.Enqueue(NewBossColorEvent(b.Color))
 	} else {
-		fmt.Printf("Boss is dead!\n")
 		b.events.Enqueue(NewBossDiedEvent())
 	}
 }

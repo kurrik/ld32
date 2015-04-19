@@ -18,7 +18,7 @@ import (
 	"../lib/twodee"
 	"fmt"
 	"github.com/go-gl/mathgl/mgl32"
-	// "image/color"
+	"image/color"
 	"io/ioutil"
 	"math"
 	"time"
@@ -36,6 +36,7 @@ type GameLayer struct {
 	linesCamera        *twodee.Camera
 	sprite             *twodee.SpriteRenderer
 	lines              *twodee.LinesRenderer
+	debugLines         *twodee.LinesRenderer
 	batch              *twodee.BatchRenderer
 	effects            *EffectsRenderer
 	app                *Application
@@ -94,6 +95,9 @@ func (l *GameLayer) Reset() (err error) {
 	if l.lines, err = twodee.NewLinesRenderer(l.linesCamera); err != nil {
 		return
 	}
+	if l.debugLines, err = twodee.NewLinesRenderer(l.camera); err != nil {
+		return
+	}
 	if l.effects, err = NewEffectsRenderer(512, 320, 1.0); err != nil {
 		return
 	}
@@ -139,6 +143,10 @@ func (l *GameLayer) Delete() {
 	if l.lines != nil {
 		l.lines.Delete()
 		l.lines = nil
+	}
+	if l.debugLines != nil {
+		l.debugLines.Delete()
+		l.debugLines = nil
 	}
 	if l.effects != nil {
 		l.effects.Delete()
@@ -187,7 +195,35 @@ func (l *GameLayer) Render() {
 		l.lines.Draw(l.hud.bossGreenLine, modelview, l.hud.whiteStyle)
 		l.lines.Draw(l.hud.bossBlueLine, modelview, l.hud.whiteStyle)
 		l.lines.Unbind()
+
+		if l.app.State.Debug {
+			l.drawBossLines()
+		}
 	}
+}
+
+func (l *GameLayer) drawBossLines() {
+	if l.level.Boss == nil || len(l.level.BossPath) == 0 {
+		return
+	}
+	var (
+		points = make([]mgl32.Vec2, len(l.level.BossPath))
+		geom   *twodee.LineGeometry
+		style  = &twodee.LineStyle{
+			Thickness: 0.15,
+			Color:     color.RGBA{255, 0, 255, 128},
+		}
+	)
+	for i, gridPoint := range l.level.BossPath {
+		points[i] = mgl32.Vec2{
+			l.level.BossCollisions.InversePosition(gridPoint.X, 0.5),
+			l.level.BossCollisions.InversePosition(gridPoint.Y, 0.5),
+		}
+	}
+	geom = twodee.NewLineGeometry(points, false)
+	l.debugLines.Bind()
+	l.debugLines.Draw(geom, mgl32.Ident4(), style)
+	l.debugLines.Unbind()
 }
 
 func (l *GameLayer) Update(elapsed time.Duration) {
@@ -274,7 +310,8 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 		}
 		switch event.Code {
 		case twodee.KeyX:
-			l.app.State.Debug = true
+			l.app.State.Debug = !l.app.State.Debug
+			fmt.Printf("Debug state: %v\n", l.app.State.Debug)
 		case twodee.KeyZ:
 			l.level.Player.Roll()
 		case twodee.KeyM:

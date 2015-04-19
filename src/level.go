@@ -15,14 +15,13 @@
 package main
 
 import (
+	"../lib/twodee"
 	"encoding/hex"
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/kurrik/tmxgo"
 	"io/ioutil"
 	"path/filepath"
 	"time"
-
-	"../lib/twodee"
-	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kurrik/tmxgo"
 )
 
 type Level struct {
@@ -40,6 +39,7 @@ type Level struct {
 	Color           mgl32.Vec3
 	events          *twodee.GameEventHandler
 	colorObserverId int
+	BossPath        []twodee.GridPoint
 }
 
 type Portal struct {
@@ -65,6 +65,10 @@ func NewLevel(mapPath string, sheet *twodee.Spritesheet, events *twodee.GameEven
 	}
 	level.colorObserverId = events.AddObserver(ChangeColor, level.changeColor)
 	return
+}
+
+func (l *Level) SetBossPath(path []twodee.GridPoint) {
+	l.BossPath = path
 }
 
 func (l *Level) changeColor(e twodee.GETyper) {

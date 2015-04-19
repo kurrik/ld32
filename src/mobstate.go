@@ -134,6 +134,7 @@ type SearchState struct {
 // ExamineWorld returns HuntState if the player is seen, otherwise the mob
 // continues wandering according to its search pattern.
 func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
+	l.SetBossPath(nil)
 	if playerSeen(m, l) {
 		return NewHuntState()
 	}
@@ -186,6 +187,7 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		s.durSinceLastContact = time.Duration(0)
 		ns = s
 	}
+	l.SetBossPath(s.path)
 	if !m.Bored(s.durSinceLastContact) {
 		ns = s
 	}
