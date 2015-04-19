@@ -15,7 +15,7 @@
 package main
 
 import (
-	twodee "../lib/twodee"
+	"../lib/twodee"
 	"encoding/hex"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/kurrik/tmxgo"
@@ -26,6 +26,7 @@ import (
 
 type Level struct {
 	Player          *Player
+	Boss            *Boss
 	Props           PropList
 	Background      *twodee.Batch
 	Sheet           *twodee.Spritesheet
@@ -151,6 +152,9 @@ func (l *Level) loadMap(path string) (err error) {
 				))
 			case "start":
 				l.Player.MoveTo(twodee.Pt(x, y))
+			case "boss":
+				l.Boss = BossMap[obj.Type]()
+				l.Boss.MoveTo(twodee.Pt(x, y))
 			}
 		}
 	}

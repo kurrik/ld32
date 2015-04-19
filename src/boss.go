@@ -20,6 +20,21 @@ import (
 	"../lib/twodee"
 )
 
+var BossMap = map[string]BossMaker{
+	"boss1": MakeBoss1,
+	"boss2": MakeBoss2,
+}
+
+type BossMaker func() *Boss
+
+func MakeBoss1() *Boss {
+	return NewBoss(&Mobile{0, 5 * time.Second})
+}
+
+func MakeBoss2() *Boss {
+	return NewBoss(&Mobile{1, 20 * time.Second})
+}
+
 type Boss struct {
 	*twodee.AnimatingEntity
 	*Mobile
