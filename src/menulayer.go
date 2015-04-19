@@ -27,6 +27,7 @@ const (
 
 const (
 	ExitCode int32 = iota
+	DebugCode
 )
 
 type MenuLayer struct {
@@ -63,6 +64,7 @@ func NewMenuLayer(winb twodee.Rectangle, state *State, app *Application) (layer 
 	}
 	menu, err = twodee.NewMenu([]twodee.MenuItem{
 		twodee.NewKeyValueMenuItem("Exit", ProgramCode, ExitCode),
+		twodee.NewKeyValueMenuItem("Debug", ProgramCode, DebugCode),
 	})
 	if err != nil {
 		return
@@ -204,6 +206,12 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 		case twodee.KeyEscape:
 			ml.visible = false
 			return false
+		case twodee.KeyUp:
+			ml.menu.Prev()
+			return false
+		case twodee.KeyDown:
+			ml.menu.Next()
+			return false
 		case twodee.KeyEnter:
 			if data := ml.menu.Select(); data != nil {
 				ml.handleMenuItem(data)
@@ -220,6 +228,9 @@ func (ml *MenuLayer) handleMenuItem(data *twodee.MenuItemData) {
 		switch data.Value {
 		case ExitCode:
 			ml.state.Exit = true
+		case DebugCode:
+			ml.state.Debug = !ml.state.Debug
+			ml.visible = false
 		}
 	default:
 		fmt.Printf("Menu entry selection: %v\n", data)
