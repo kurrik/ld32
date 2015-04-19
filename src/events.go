@@ -20,7 +20,8 @@ import (
 )
 
 const (
-	PlayMusic twodee.GameEventType = iota
+	PlayBackgroundMusic twodee.GameEventType = iota
+	PlayBossMusic
 	PauseMusic
 	ResumeMusic
 	ShakeCamera

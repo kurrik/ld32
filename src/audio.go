@@ -19,45 +19,77 @@ import twodee "../lib/twodee"
 type AudioSystem struct {
 	app                   *Application
 	bgm                   *twodee.Music
+	bossMusic             *twodee.Music
 	bgmObserverId         int
+	bossMusicObserverId   int
 	pauseMusicObserverId  int
 	resumeMusicObserverId int
+	musicToggle           int32
 }
 
-func (a *AudioSystem) PlayMusic(e twodee.GETyper) {
-	a.bgm.Play(-1)
+func (a *AudioSystem) PlayBackgroundMusic(e twodee.GETyper) {
+	if a.musicToggle == 1 {
+		if twodee.MusicIsPlaying() {
+			twodee.PauseMusic()
+		}
+		a.bgm.Play(-1)
+	}
+}
+
+func (a *AudioSystem) PlayBossMusic(e twodee.GETyper) {
+	if a.musicToggle == 1 {
+		if twodee.MusicIsPlaying() {
+			twodee.PauseMusic()
+		}
+		a.bossMusic.Play(-1)
+	}
 }
 
 func (a *AudioSystem) PauseMusic(e twodee.GETyper) {
-	if twodee.MusicIsPlaying() {
-		twodee.PauseMusic()
+	if a.musicToggle == 1 {
+		if twodee.MusicIsPlaying() {
+			twodee.PauseMusic()
+		}
 	}
 }
 
 func (a *AudioSystem) ResumeMusic(e twodee.GETyper) {
-	if twodee.MusicIsPaused() {
-		twodee.ResumeMusic()
+	if a.musicToggle == 1 {
+		if twodee.MusicIsPaused() {
+			twodee.ResumeMusic()
+		}
 	}
 }
 
 func (a *AudioSystem) Delete() {
-	a.app.GameEventHandler.RemoveObserver(PlayMusic, a.bgmObserverId)
+	a.app.GameEventHandler.RemoveObserver(PlayBackgroundMusic, a.bgmObserverId)
+	a.app.GameEventHandler.RemoveObserver(PlayBossMusic, a.bossMusicObserverId)
 	a.app.GameEventHandler.RemoveObserver(PauseMusic, a.pauseMusicObserverId)
 	a.app.GameEventHandler.RemoveObserver(ResumeMusic, a.resumeMusicObserverId)
 	a.bgm.Delete()
+	a.bossMusic.Delete()
 }
 
 func NewAudioSystem(app *Application) (audioSystem *AudioSystem, err error) {
-	var bgm *twodee.Music
+	var (
+		bgm       *twodee.Music
+		bossMusic *twodee.Music
+	)
 
 	if bgm, err = twodee.NewMusic("resources/music/Shrine_Theme_Rough.ogg"); err != nil {
 		return
 	}
-	audioSystem = &AudioSystem{
-		app: app,
-		bgm: bgm,
+	if bossMusic, err = twodee.NewMusic("resources/music/Boss_Theme_Rough.ogg"); err != nil {
+		return
 	}
-	audioSystem.bgmObserverId = app.GameEventHandler.AddObserver(PlayMusic, audioSystem.PlayMusic)
+	audioSystem = &AudioSystem{
+		app:         app,
+		bgm:         bgm,
+		bossMusic:   bossMusic,
+		musicToggle: 1,
+	}
+	audioSystem.bgmObserverId = app.GameEventHandler.AddObserver(PlayBackgroundMusic, audioSystem.PlayBackgroundMusic)
+	audioSystem.bgmObserverId = app.GameEventHandler.AddObserver(PlayBossMusic, audioSystem.PlayBossMusic)
 	audioSystem.pauseMusicObserverId = app.GameEventHandler.AddObserver(PauseMusic, audioSystem.PauseMusic)
 	audioSystem.resumeMusicObserverId = app.GameEventHandler.AddObserver(ResumeMusic, audioSystem.ResumeMusic)
 	return

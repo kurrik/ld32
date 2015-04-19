@@ -105,7 +105,7 @@ func (l *GameLayer) Reset() (err error) {
 		return
 	}
 	l.loadLevel("main")
-	l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayMusic))
+	l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayBackgroundMusic))
 	return
 }
 
@@ -124,6 +124,14 @@ func (l *GameLayer) loadLevel(name string) (err error) {
 		return
 	}
 	l.updateCamera(1.0)
+	// check name of level being loaded
+	// if "main" then trigger PlayBackgroundMusic event
+	if name == "main" {
+		l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayBackgroundMusic))
+	} else {
+		// else trigger PlayBossMusic event
+		l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayBossMusic))
+	}
 	return
 }
 
