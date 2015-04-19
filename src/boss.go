@@ -44,8 +44,8 @@ type BossMaker func(x, y float32, events *twodee.GameEventHandler) *Boss
 // MakeBoss1 returns a boss that searches left and right and gets bored easily.
 func MakeBoss1(x, y float32, events *twodee.GameEventHandler) *Boss {
 	sp := []mgl32.Vec2{
-		mgl32.Vec2{x - 10, y},
-		mgl32.Vec2{x + 10, y},
+		mgl32.Vec2{x - 5, y},
+		mgl32.Vec2{x + 5, y},
 	}
 	return NewBoss(&Mobile{
 		DetectionRadius: 4,
