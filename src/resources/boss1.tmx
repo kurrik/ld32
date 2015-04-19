@@ -30,9 +30,14 @@
   <object name="plate" type="00ffff" x="299" y="335" width="16" height="16"/>
   <object name="plate" type="0f0f0f" x="640" y="336" width="16" height="16"/>
  </objectgroup>
- <layer name="collision" width="52" height="52" visible="0">
+ <layer name="collision" width="52" height="52">
   <data encoding="base64" compression="zlib">
    eJztmEEOgCAQxPwa//+UD9BgsgxYsU04EYbthQWOQ2QdbcOxC/qw0YeNPmzSPpWs9P6pvEo/S/dAfZ6zqD7kc6JX890c+W7Xq02f96n4fBV92OjDRp/r+jSj9VTXz+hRo5n65Paekel5wEYfNn/yIXv63tZnFSvf25WsGfeLZBb1P7GapQ/Th4A+bPRhow8bfdi0DccJq2VLqw==
+  </data>
+ </layer>
+ <layer name="bosscollision" width="52" height="52">
+  <data encoding="base64" compression="zlib">
+   eJzt1skRwCAMQ1Fao/+mUgLEyBqFfM34aME7ZJljjMkwTHluCZ7s4MkOnnXXmz71OxbPugtPv8d1N/UOHt/dKjtKjyt48DhT8Xw1eLJz4ul4xk478ejO7ujEozu7oxOP7uyOTr4/2fnL/ygeX/DUPAk7eHx3q+wonxGXZ6dP2YUHz6rvluDJDp7s4MnOvHAe2K6PNQ==
   </data>
  </layer>
 </map>

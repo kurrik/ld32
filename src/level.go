@@ -32,6 +32,7 @@ type Level struct {
 	Background      *twodee.Batch
 	Sheet           *twodee.Spritesheet
 	Collisions      *twodee.Grid
+	BossCollisions  *twodee.Grid
 	Portals         []Portal
 	Plates          PropList
 	Width           float32
@@ -123,6 +124,7 @@ func (l *Level) loadMap(path string) (err error) {
 		return
 	}
 	l.Collisions = twodee.NewGrid(m.Width, m.Height)
+	l.BossCollisions = twodee.NewGrid(m.Width, m.Height)
 	l.Width = float32(m.Width*m.TileWidth) / PxPerUnit
 	l.Height = float32(m.Height*m.TileHeight) / PxPerUnit
 	if tiles, err = m.TilesFromLayerName("collision"); err == nil {
@@ -130,6 +132,14 @@ func (l *Level) loadMap(path string) (err error) {
 		for i, t := range tiles {
 			if t != nil {
 				l.Collisions.SetIndex(int32(i), true)
+			}
+		}
+	}
+	if tiles, err = m.TilesFromLayerName("bosscollision"); err == nil {
+		// Able to find collision tiles
+		for i, t := range tiles {
+			if t != nil {
+				l.BossCollisions.SetIndex(int32(i), true)
 			}
 		}
 	}

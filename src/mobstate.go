@@ -64,7 +64,7 @@ func (m *Mobile) HandleCollision(p *Player) {}
 func MoveMob(m Mob, v mgl32.Vec2, l *Level) {
 	bounds := m.Bounds()
 	pos := m.Pos()
-	v = l.Collisions.FixMove(mgl32.Vec4{
+	v = l.BossCollisions.FixMove(mgl32.Vec4{
 		bounds.Min.X,
 		bounds.Min.Y,
 		bounds.Max.X,
@@ -179,7 +179,7 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		// Try to generate a new path if the player is seen and our
 		// last one is stale.
 		if s.pathAge > maxPathAge {
-			s.path = getPath(l.Collisions, m.Pos(), l.Player.Pos())
+			s.path = getPath(l.BossCollisions, m.Pos(), l.Player.Pos())
 			s.pathAge = 0
 			s.pathIdx = 0
 		}
@@ -202,9 +202,9 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		}
 		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
 		for s.pathIdx < len(s.path) {
-			if l.Collisions.CanSee(mv, mgl32.Vec2{
-				l.Collisions.InversePosition(s.path[s.pathIdx].X, 0.5),
-				l.Collisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
+			if l.BossCollisions.CanSee(mv, mgl32.Vec2{
+				l.BossCollisions.InversePosition(s.path[s.pathIdx].X, 0.5),
+				l.BossCollisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
 			}, 0.5, 0.5) {
 				s.pathIdx++
 			} else {
@@ -215,8 +215,8 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		// Chase player!
 		//		fmt.Println("Have path idx %v, path %v", s.pathIdx, s.path)
 		tv := mgl32.Vec2{
-			l.Collisions.InversePosition(s.path[s.pathIdx].X, 0.5),
-			l.Collisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
+			l.BossCollisions.InversePosition(s.path[s.pathIdx].X, 0.5),
+			l.BossCollisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
 		}
 		MoveMob(m, tv.Sub(mv).Normalize().Mul(m.Speed()), l)
 		if tv.Sub(mv).Len() < 1 { // Close enough
@@ -235,7 +235,7 @@ func (s *HuntState) Update(m Mob, d time.Duration) {
 // playerSeen returns true if the player is currently visible to the mob and
 // within its detection radius.
 func playerSeen(m Mob, l *Level) bool {
-	c := l.Collisions
+	c := l.BossCollisions
 	mpv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
 	ppv := mgl32.Vec2{l.Player.Pos().X, l.Player.Pos().Y}
 	if c.CanSee(mpv, ppv, 0.5, 0.5) && m.Detect(mpv.Sub(ppv).Len()) {
