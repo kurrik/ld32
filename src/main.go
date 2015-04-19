@@ -70,13 +70,13 @@ func NewApplication() (app *Application, err error) {
 		return
 	}
 	layers.Push(gamelayer)
+	if audioSystem, err = NewAudioSystem(app); err != nil {
+		return
+	}
 	if menulayer, err = NewMenuLayer(winbounds, state, app); err != nil {
 		return
 	}
 	layers.Push(menulayer)
-	if audioSystem, err = NewAudioSystem(app); err != nil {
-		return
-	}
 	app.AudioSystem = audioSystem
 	fmt.Printf("OpenGL version: %s\n", context.OpenGLVersion)
 	fmt.Printf("Shader version: %s\n", context.ShaderVersion)
