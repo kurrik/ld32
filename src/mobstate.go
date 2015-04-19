@@ -134,7 +134,7 @@ type SearchState struct {
 // ExamineWorld returns HuntState if the player is seen, otherwise the mob
 // continues wandering according to its search pattern.
 func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
-	l.SetBossPath(nil)
+	l.SetBossPath([]twodee.GridPoint{})
 	if playerSeen(m, l) {
 		return NewHuntState()
 	}
