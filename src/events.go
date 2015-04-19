@@ -27,6 +27,7 @@ const (
 	ChangeColor
 	BossColor
 	BossDied
+	PlayerDied
 	SENTINEL
 )
 
@@ -89,3 +90,14 @@ func NewBossDiedEvent() *BossDiedEvent {
 		*twodee.NewBasicGameEvent(BossDied),
 	}
 }
+
+type PlayerDiedEvent struct {
+	twodee.BasicGameEvent
+}
+
+func NewPlayerDiedEvent() *PlayerDiedEvent {
+	return &PlayerDiedEvent{
+		*twodee.NewBasicGameEvent(PlayerDied),
+	}
+}
+

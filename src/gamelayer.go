@@ -47,6 +47,7 @@ type GameLayer struct {
 	shakeObserverId    int
 	shakePriority      int32
 	bossDiedObserverId int
+	playerDiedObserverId int
 }
 
 func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, err error) {
@@ -80,6 +81,7 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 	}
 	layer.shakeObserverId = app.GameEventHandler.AddObserver(ShakeCamera, layer.shakeCamera)
 	layer.bossDiedObserverId = app.GameEventHandler.AddObserver(BossDied, layer.bossDied)
+	layer.playerDiedObserverId = app.GameEventHandler.AddObserver(PlayerDied, layer.playerDied)
 	err = layer.Reset()
 	return
 }
@@ -294,6 +296,10 @@ func (l *GameLayer) shakeCamera(e twodee.GETyper) {
 }
 
 func (l *GameLayer) bossDied(e twodee.GETyper) {
+	l.loadLevel("main")
+}
+
+func (l *GameLayer) playerDied(e twodee.GETyper) {
 	l.loadLevel("main")
 }
 

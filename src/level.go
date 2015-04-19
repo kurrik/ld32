@@ -100,6 +100,9 @@ func (l *Level) Update(elapsed time.Duration) {
 	if l.Boss != nil {
 		l.Boss.Update(elapsed)
 		l.Boss.ExamineWorld(l)
+		if l.Boss.Bounds().Overlaps(l.Player.Bounds()) {
+			l.events.Enqueue(NewPlayerDiedEvent())
+		}
 	}
 	l.Player.UpdateLevel(elapsed, l)
 	l.Plates.Update(elapsed)
