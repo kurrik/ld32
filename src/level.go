@@ -22,7 +22,6 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"time"
-	"fmt"
 )
 
 type Level struct {
