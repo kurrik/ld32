@@ -70,7 +70,6 @@ func MoveMob(m Mob, v mgl32.Vec2, l *Level) {
 		bounds.Max.Y,
 	}, v, 0.5, 0.5)
 	p := twodee.Pt(pos.X+v[0], pos.Y+v[1])
-	fmt.Printf("Mob moving along vector: %+v to point %v\n", v, p)
 	m.MoveTo(p)
 }
 
@@ -130,7 +129,7 @@ func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
 		s.targetPointIdx = (s.targetPointIdx + 1) % len(s.Pattern)
 		tv = s.Pattern[s.targetPointIdx]
 	}
-	MoveMob(m, tv.Normalize().Mul(m.Speed()), l)
+	MoveMob(m, tv.Sub(mv).Normalize().Mul(m.Speed()), l)
 	return s
 }
 
