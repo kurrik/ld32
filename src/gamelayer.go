@@ -45,7 +45,7 @@ type GameLayer struct {
 func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, err error) {
 	var (
 		camera       *twodee.Camera
-		cameraBounds = twodee.Rect(-16, -10, 16, 10)
+		cameraBounds = twodee.Rect(-8, -5, 8, 5)
 	)
 	if camera, err = twodee.NewCamera(cameraBounds, winb); err != nil {
 		return
@@ -73,7 +73,7 @@ func (l *GameLayer) Reset() (err error) {
 	if l.sprite, err = twodee.NewSpriteRenderer(l.camera); err != nil {
 		return
 	}
-	if l.effects, err = NewEffectsRenderer(1024, 640, 1.0); err != nil {
+	if l.effects, err = NewEffectsRenderer(512, 320, 1.0); err != nil {
 		return
 	}
 	if err = l.loadSpritesheet(); err != nil {

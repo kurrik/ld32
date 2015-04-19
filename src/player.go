@@ -36,18 +36,18 @@ const (
 )
 
 var PlayerAnimations = map[PlayerState][]int{
-	Standing | Up:    []int{0},
-	Standing | Down:  []int{1},
-	Standing | Left:  []int{2},
+	Standing | Up:    []int{6},
+	Standing | Down:  []int{0},
+	Standing | Left:  []int{3},
 	Standing | Right: []int{3},
-	Walking | Up:     []int{4, 5},
-	Walking | Down:   []int{6, 7},
-	Walking | Left:   []int{8, 9},
-	Walking | Right:  []int{8, 9},
-	Rolling | Up:     []int{10, 11, 12, 13, 10, 11, 12, 13},
-	Rolling | Down:   []int{10, 11, 12, 13, 10, 11, 12, 13},
-	Rolling | Left:   []int{10, 11, 12, 13, 10, 11, 12, 13},
-	Rolling | Right:  []int{10, 11, 12, 13, 10, 11, 12, 13},
+	Walking | Up:     []int{7, 6, 8, 6},
+	Walking | Down:   []int{1, 0, 2, 0},
+	Walking | Left:   []int{4, 3, 5, 3},
+	Walking | Right:  []int{4, 3, 5, 3},
+	Rolling | Up:     []int{19, 20, 21, 22, 23},
+	Rolling | Down:   []int{14, 15, 16, 17, 18},
+	Rolling | Left:   []int{9, 10, 11, 12, 13},
+	Rolling | Right:  []int{9, 10, 11, 12, 13},
 }
 
 type Player struct {
@@ -82,7 +82,7 @@ func NewPlayer(events *twodee.GameEventHandler) *Player {
 
 func (p *Player) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 	var (
-		frame          = sheet.GetFrame(fmt.Sprintf("numbered_squares_%02d", p.Frame()))
+		frame          = sheet.GetFrame(fmt.Sprintf("player_%02d", p.Frame()))
 		pt             = p.Pos()
 		scaleX float32 = 1.0
 	)

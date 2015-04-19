@@ -13,11 +13,13 @@ build_aesprite() {
 }
 
 build_aesprite numbered_squares
+build_aesprite player
 cp assets/*.png tmp/
 
 TexturePacker \
   --format json-array \
   --trim-sprite-names \
+  --trim-mode None \
   --size-constraints POT \
   --disable-rotation \
   --data src/resources/spritesheet.json \
