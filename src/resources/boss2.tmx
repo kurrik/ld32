@@ -29,7 +29,7 @@
  </objectgroup>
  <layer name="collision" width="40" height="40" opacity="0.3">
   <data encoding="base64" compression="zlib">
-   eJztljEKACAMxPo1//8pp+ImtQdaSwLZLI3g4DCzgYhhX1G5zfm5rwr0aWT7lLtk93Tq89ksJzs6vr9b0KdBnwZ9GvRp0KdBn0bXvur/0859Ph89V/UN7tp+6HvZGGlDxOUEn3We8w==
+   eJztlkEKACEMxPo1//8pT2Vvoh1Yx5JAjqURPHRExEDEbW/h3Ja83OcCfRrVPuUt1T2d+nK2ysmOjv/vL+jToE+DPg36NOjToE+ja5/7ferel7NV1PvZ4Q+u2l7ou9m404aInxPcaJ5x
   </data>
  </layer>
 </map>
