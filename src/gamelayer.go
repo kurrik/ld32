@@ -503,7 +503,7 @@ func (l *GameLayer) getSplashSpriteConfig(name string, camera *twodee.Camera) tw
 		View: twodee.ModelViewConfig{
 			pt.X, pt.Y, 0,
 			0, 0, 0,
-			1.0, 1.0, 1.0,
+			2.0, 2.0, 1.0,
 		},
 		Frame: frame.Frame,
 	}
