@@ -99,14 +99,18 @@ func (l *Level) Update(elapsed time.Duration) {
 	// updateable things in the level.
 	if l.Boss != nil {
 		l.Boss.Update(elapsed)
-		l.Boss.ExamineWorld(l)
-		if l.Boss.Bounds().Overlaps(l.Player.Bounds()) {
+		if !l.Boss.Dead {
+			l.Boss.ExamineWorld(l)
+		}
+		if !l.Boss.Dead && !l.Player.Dead && l.Boss.Bounds().Overlaps(l.Player.Bounds()) {
 			l.events.Enqueue(NewPlayerDiedEvent())
 		}
 	}
-	l.Player.UpdateLevel(elapsed, l)
-	l.Plates.Update(elapsed)
-	l.Plates.CheckCollision(l.Player)
+	if l.Boss == nil || !l.Boss.Dead {
+		l.Player.UpdateLevel(elapsed, l)
+		l.Plates.Update(elapsed)
+		l.Plates.CheckCollision(l.Player)
+	}
 }
 
 func (l *Level) Delete() {

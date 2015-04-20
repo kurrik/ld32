@@ -29,24 +29,24 @@ const (
 )
 
 type GameLayer struct {
-	levels             map[string]string
-	shake              *twodee.ContinuousAnimation
-	cameraBounds       twodee.Rectangle
-	camera             *twodee.Camera
-	linesCamera        *twodee.Camera
-	sprite             *twodee.SpriteRenderer
-	lines              *twodee.LinesRenderer
-	debugLines         *twodee.LinesRenderer
-	batch              *twodee.BatchRenderer
-	effects            *EffectsRenderer
-	app                *Application
-	spritesheet        *twodee.Spritesheet
-	spritetexture      *twodee.Texture
-	level              *Level
-	hud                *Hud
-	shakeObserverId    int
-	shakePriority      int32
-	bossDiedObserverId int
+	levels               map[string]string
+	shake                *twodee.ContinuousAnimation
+	cameraBounds         twodee.Rectangle
+	camera               *twodee.Camera
+	linesCamera          *twodee.Camera
+	sprite               *twodee.SpriteRenderer
+	lines                *twodee.LinesRenderer
+	debugLines           *twodee.LinesRenderer
+	batch                *twodee.BatchRenderer
+	effects              *EffectsRenderer
+	app                  *Application
+	spritesheet          *twodee.Spritesheet
+	spritetexture        *twodee.Texture
+	level                *Level
+	hud                  *Hud
+	shakeObserverId      int
+	shakePriority        int32
+	bossDiedObserverId   int
 	playerDiedObserverId int
 }
 
@@ -79,9 +79,6 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 		shakePriority: -1,
 		hud:           hud,
 	}
-	layer.shakeObserverId = app.GameEventHandler.AddObserver(ShakeCamera, layer.shakeCamera)
-	layer.bossDiedObserverId = app.GameEventHandler.AddObserver(BossDied, layer.bossDied)
-	layer.playerDiedObserverId = app.GameEventHandler.AddObserver(PlayerDied, layer.playerDied)
 	err = layer.Reset()
 	return
 }
@@ -106,8 +103,11 @@ func (l *GameLayer) Reset() (err error) {
 	if err = l.loadSpritesheet(); err != nil {
 		return
 	}
+	l.shakeObserverId = l.app.GameEventHandler.AddObserver(ShakeCamera, l.shakeCamera)
+	l.bossDiedObserverId = l.app.GameEventHandler.AddObserver(BossDied, l.bossDied)
+	l.playerDiedObserverId = l.app.GameEventHandler.AddObserver(PlayerDied, l.playerDied)
 	l.loadLevel("main")
-	l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayMusic))
+	l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayBackgroundMusic))
 	return
 }
 
@@ -126,6 +126,14 @@ func (l *GameLayer) loadLevel(name string) (err error) {
 		return
 	}
 	l.updateCamera(1.0)
+	// check name of level being loaded
+	// if "main" then trigger PlayBackgroundMusic event
+	if name == "main" {
+		l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayBackgroundMusic))
+	} else {
+		// else trigger PlayBossMusic event
+		l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayBossMusic))
+	}
 	return
 }
 
@@ -157,6 +165,12 @@ func (l *GameLayer) Delete() {
 	if l.shakeObserverId != 0 {
 		l.app.GameEventHandler.RemoveObserver(ShakeCamera, l.shakeObserverId)
 	}
+	if l.bossDiedObserverId != 0 {
+		l.app.GameEventHandler.RemoveObserver(BossDied, l.bossDiedObserverId)
+	}
+	if l.playerDiedObserverId != 0 {
+		l.app.GameEventHandler.RemoveObserver(PlayerDied, l.playerDiedObserverId)
+	}
 	if l.level != nil {
 		l.level.Delete()
 		l.level = nil
@@ -165,41 +179,51 @@ func (l *GameLayer) Delete() {
 
 func (l *GameLayer) Render() {
 	if l.level != nil {
-		l.effects.Bind()
-		l.batch.Bind()
-		if err := l.batch.Draw(l.level.Background, 0, 0, 0); err != nil {
-			panic(err)
-		}
-		l.batch.Unbind()
-		l.spritetexture.Bind()
-		if len(l.level.Plates) > 0 {
-			l.sprite.Draw(l.level.Plates.SpriteConfigs(l.spritesheet))
-		}
-		if len(l.level.Props) > 0 {
-			l.sprite.Draw(l.level.Props.SpriteConfigs(l.spritesheet))
-		}
-		l.spritetexture.Unbind()
-		l.effects.Unbind()
-		l.effects.Draw()
+		if l.level.Player.Dead {
+			l.spritetexture.Bind()
+			l.sprite.Draw([]twodee.SpriteConfig{l.level.Player.SpriteConfig(l.spritesheet)})
+			l.spritetexture.Unbind()
+		} else if l.level.Boss != nil && l.level.Boss.Dead {
+			l.spritetexture.Bind()
+			l.sprite.Draw([]twodee.SpriteConfig{l.level.Boss.SpriteConfig(l.spritesheet)})
+			l.spritetexture.Unbind()
+		} else {
+			l.effects.Bind()
+			l.batch.Bind()
+			if err := l.batch.Draw(l.level.Background, 0, 0, 0); err != nil {
+				panic(err)
+			}
+			l.batch.Unbind()
+			l.spritetexture.Bind()
+			if len(l.level.Plates) > 0 {
+				l.sprite.Draw(l.level.Plates.SpriteConfigs(l.spritesheet))
+			}
+			if len(l.level.Props) > 0 {
+				l.sprite.Draw(l.level.Props.SpriteConfigs(l.spritesheet))
+			}
+			l.spritetexture.Unbind()
+			l.effects.Unbind()
+			l.effects.Draw()
 
-		modelview := mgl32.Ident4()
+			modelview := mgl32.Ident4()
 
-		l.hud.UpdateLines(l.level)
+			l.hud.UpdateLines(l.level)
 
-		l.lines.Bind()
-		l.lines.Draw(l.hud.blackLine1, modelview, l.hud.blackStyle)
-		l.lines.Draw(l.hud.blackLine2, modelview, l.hud.blackStyle)
-		l.lines.Draw(l.hud.blackLine3, modelview, l.hud.blackStyle)
-		l.lines.Draw(l.hud.levelRedLine, modelview, l.hud.redStyle)
-		l.lines.Draw(l.hud.levelGreenLine, modelview, l.hud.greenStyle)
-		l.lines.Draw(l.hud.levelBlueLine, modelview, l.hud.blueStyle)
-		l.lines.Draw(l.hud.bossRedLine, modelview, l.hud.whiteStyle)
-		l.lines.Draw(l.hud.bossGreenLine, modelview, l.hud.whiteStyle)
-		l.lines.Draw(l.hud.bossBlueLine, modelview, l.hud.whiteStyle)
-		l.lines.Unbind()
+			l.lines.Bind()
+			l.lines.Draw(l.hud.blackLine1, modelview, l.hud.blackStyle)
+			l.lines.Draw(l.hud.blackLine2, modelview, l.hud.blackStyle)
+			l.lines.Draw(l.hud.blackLine3, modelview, l.hud.blackStyle)
+			l.lines.Draw(l.hud.levelRedLine, modelview, l.hud.redStyle)
+			l.lines.Draw(l.hud.levelGreenLine, modelview, l.hud.greenStyle)
+			l.lines.Draw(l.hud.levelBlueLine, modelview, l.hud.blueStyle)
+			l.lines.Draw(l.hud.bossRedLine, modelview, l.hud.whiteStyle)
+			l.lines.Draw(l.hud.bossGreenLine, modelview, l.hud.whiteStyle)
+			l.lines.Draw(l.hud.bossBlueLine, modelview, l.hud.whiteStyle)
+			l.lines.Unbind()
 
-		if l.app.State.Debug {
-			l.drawBossLines()
+			if l.app.State.Debug {
+				l.drawBossLines()
+			}
 		}
 	}
 }
@@ -296,11 +320,21 @@ func (l *GameLayer) shakeCamera(e twodee.GETyper) {
 }
 
 func (l *GameLayer) bossDied(e twodee.GETyper) {
-	l.loadLevel("main")
+	if l.level.Boss != nil && !l.level.Boss.Dead {
+		l.level.Boss.Die()
+		l.level.Boss.SetCallback(func() {
+			l.loadLevel("main")
+		})
+	}
 }
 
 func (l *GameLayer) playerDied(e twodee.GETyper) {
-	l.loadLevel("main")
+	if !l.level.Player.Dead {
+		l.level.Player.Die()
+		l.level.Player.SetCallback(func() {
+			l.loadLevel("main")
+		})
+	}
 }
 
 func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
