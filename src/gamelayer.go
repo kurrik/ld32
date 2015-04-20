@@ -179,7 +179,15 @@ func (l *GameLayer) Delete() {
 
 func (l *GameLayer) Render() {
 	if l.level != nil {
-		if !l.level.Player.Dead {
+		if l.level.Player.Dead {
+			l.spritetexture.Bind()
+			l.sprite.Draw([]twodee.SpriteConfig{l.level.Player.SpriteConfig(l.spritesheet)})
+			l.spritetexture.Unbind()
+		} else if l.level.Boss != nil && l.level.Boss.Dead {
+			l.spritetexture.Bind()
+			l.sprite.Draw([]twodee.SpriteConfig{l.level.Boss.SpriteConfig(l.spritesheet)})
+			l.spritetexture.Unbind()
+		} else {
 			l.effects.Bind()
 			l.batch.Bind()
 			if err := l.batch.Draw(l.level.Background, 0, 0, 0); err != nil {
@@ -216,10 +224,6 @@ func (l *GameLayer) Render() {
 			if l.app.State.Debug {
 				l.drawBossLines()
 			}
-		} else {
-			l.spritetexture.Bind()
-			l.sprite.Draw([]twodee.SpriteConfig{l.level.Player.SpriteConfig(l.spritesheet)})
-			l.spritetexture.Unbind()
 		}
 	}
 }
@@ -316,7 +320,12 @@ func (l *GameLayer) shakeCamera(e twodee.GETyper) {
 }
 
 func (l *GameLayer) bossDied(e twodee.GETyper) {
-	l.loadLevel("main")
+	if l.level.Boss != nil && !l.level.Boss.Dead {
+		l.level.Boss.Die()
+		l.level.Boss.SetCallback(func() {
+			l.loadLevel("main")
+		})
+	}
 }
 
 func (l *GameLayer) playerDied(e twodee.GETyper) {
@@ -340,9 +349,6 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			break
 		}
 		switch event.Code {
-		case twodee.KeyX:
-			l.app.State.Debug = !l.app.State.Debug
-			fmt.Printf("Debug state: %v\n", l.app.State.Debug)
 		case twodee.KeyZ:
 			l.level.Player.Roll()
 		case twodee.KeyM:
@@ -352,11 +358,25 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 				l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PauseMusic))
 			}
 		case twodee.Key0:
-			l.loadLevel("main")
+			l.app.State.Debug = !l.app.State.Debug
+			fmt.Printf("Debug state: %v\n", l.app.State.Debug)
+			l.app.GameEventHandler.Enqueue(NewShakeEvent(3, 200, 3.0, 4.0, 1.0))
 		case twodee.Key1:
-			l.loadLevel("boss1")
+			if l.app.State.Debug {
+				l.loadLevel("boss1")
+			}
 		case twodee.Key2:
-			l.loadLevel("boss2")
+			if l.app.State.Debug {
+				l.loadLevel("boss2")
+			}
+		case twodee.Key3:
+			if l.app.State.Debug {
+				l.loadLevel("main")
+			}
+		case twodee.Key9:
+			if l.app.State.Debug {
+				l.app.GameEventHandler.Enqueue(NewBossDiedEvent())
+			}
 		}
 
 	}

@@ -62,16 +62,10 @@ func (m *Mobile) HandleCollision(p *Player) {}
 
 // MoveMob moves the mob along the given vector, which should be normalized.
 func MoveMob(m Mob, v mgl32.Vec2, l *Level) {
-	bounds := m.Bounds()
+	// Fuck all this collision noise.
 	pos := m.Pos()
-	v = l.BossCollisions.FixMove(mgl32.Vec4{
-		bounds.Min.X,
-		bounds.Min.Y,
-		bounds.Max.X,
-		bounds.Max.Y,
-	}, v, 0.5, 0.5)
-	p := twodee.Pt(pos.X+v[0], pos.Y+v[1])
-	m.MoveTo(p)
+	end := twodee.Pt(pos.X+v[0], pos.Y+v[1])
+	m.MoveTo(end)
 }
 
 // MobState is implemented by various states responsible for controlling mobile
@@ -166,7 +160,7 @@ func NewHuntState() *HuntState {
 	return &HuntState{
 		durSinceLastContact: 0,
 		path:                []twodee.GridPoint{},
-		pathIdx:             -1,
+		pathIdx:             0,
 		pathAge:             maxPathAge,
 		BaseState:           &BaseState{"Hunt"},
 	}
@@ -200,24 +194,20 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		// We've passed the end of the path; there's nothing left to do.
 		// Hopefully a new path will be generated within a few frames.
 		if s.pathIdx == len(s.path) {
+			fmt.Println("End of path.")
 			return ns
 		}
 		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
-		for s.pathIdx < len(s.path) {
-			if l.BossCollisions.CanSee(mv, mgl32.Vec2{
+		for s.pathIdx < len(s.path)-1 { // Never roll off the end.
+			tv := mgl32.Vec2{
 				l.BossCollisions.InversePosition(s.path[s.pathIdx].X, 0.5),
 				l.BossCollisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
-			}, 0.5, 0.5) {
-				s.pathIdx++
-			} else {
-				//				fmt.Printf("Can't see path position %v. Grid pos: (%v,%v) mob pos: (%v,%v)\n", s.pathIdx, s.path[s.pathIdx].X, s.path[s.pathIdx].Y, l.Collisions.GridPosition(m.Pos().X, 0.5), l.Collisions.GridPosition(m.Pos().Y, 0.5))
+			}
+			if tv.Sub(mv).Len() >= 2 {
 				break
 			}
+			s.pathIdx++
 		}
-		// TODO: This can probably just be s.pathIdx-- now, since A*
-		// should never build a path in which we can't see the first
-		// grid position.
-		s.pathIdx = MaxInt(0, s.pathIdx-1) // Last visible node but never go negative...
 		// Chase player!
 		tv := mgl32.Vec2{
 			l.BossCollisions.InversePosition(s.path[s.pathIdx].X, 0.5),
