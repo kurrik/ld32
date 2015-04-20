@@ -68,9 +68,9 @@ func MakeBoss2(x, y float32, events *twodee.GameEventHandler) *Boss {
 		speed:           0.04,
 		searchPattern:   []mgl32.Vec2{},
 	}, []mgl32.Vec3{
-		mgl32.Vec3{1.0, 0.0, 0.0},
-		mgl32.Vec3{0.0, 1.0, 0.0},
-		mgl32.Vec3{0.0, 0.0, 1.0},
+		mgl32.Vec3{0.8, 0.8, 0.6},
+		mgl32.Vec3{0.0, 1.0, 1.0},
+		mgl32.Vec3{1.0, 0.8, 0.6},
 	}, events)
 }
 

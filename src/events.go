@@ -94,7 +94,7 @@ type BossDiedEvent struct {
 func NewBossDiedEvent(name string) *BossDiedEvent {
 	return &BossDiedEvent{
 		BasicGameEvent: *twodee.NewBasicGameEvent(BossDied),
-		Name: name,
+		Name:           name,
 	}
 }
 
