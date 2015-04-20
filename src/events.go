@@ -24,6 +24,10 @@ const (
 	PlayBossMusic
 	PauseMusic
 	ResumeMusic
+	PlayBossDeathEffect
+	PlayColorChangeEffect
+	PlayPlayerDeathEffect
+	PlayRollEffect
 	ShakeCamera
 	ChangeColor
 	BossColor
@@ -101,4 +105,3 @@ func NewPlayerDiedEvent() *PlayerDiedEvent {
 		*twodee.NewBasicGameEvent(PlayerDied),
 	}
 }
-
