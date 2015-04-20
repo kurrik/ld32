@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"../lib/twodee"
@@ -170,13 +171,18 @@ func NewHuntState() *HuntState {
 // the mob is not yet tired of chasing. Otherwise, it returns nil.
 func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 	s.pathAge++
+	g := l.BossCollisions
 	if playerSeen(m, l) {
 		// Try to generate a new path if the player is seen and our
 		// last one is stale.
 		if s.pathAge > maxPathAge {
-			s.path = getPath(l.BossCollisions, m.Pos(), l.Player.Pos())
-			s.pathAge = 0
-			s.pathIdx = 0
+			if path := getPath(g, m.Pos(), l.Player.Pos()); len(path) > 0 {
+				s.path = path
+				s.pathAge = 0
+				s.pathIdx = 0
+			}
+			// Otherwise keep our current path, since we couldn't make
+			// a new one.
 		}
 		s.durSinceLastContact = time.Duration(0)
 		ns = s
@@ -194,14 +200,13 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		// We've passed the end of the path; there's nothing left to do.
 		// Hopefully a new path will be generated within a few frames.
 		if s.pathIdx == len(s.path) {
-			fmt.Println("End of path.")
 			return ns
 		}
 		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
 		for s.pathIdx < len(s.path)-1 { // Never roll off the end.
 			tv := mgl32.Vec2{
-				l.BossCollisions.InversePosition(s.path[s.pathIdx].X, 0.5),
-				l.BossCollisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
+				g.InversePosition(s.path[s.pathIdx].X, 0.5),
+				g.InversePosition(s.path[s.pathIdx].Y, 0.5),
 			}
 			if tv.Sub(mv).Len() >= 2 {
 				break
@@ -210,8 +215,8 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		}
 		// Chase player!
 		tv := mgl32.Vec2{
-			l.BossCollisions.InversePosition(s.path[s.pathIdx].X, 0.5),
-			l.BossCollisions.InversePosition(s.path[s.pathIdx].Y, 0.5),
+			g.InversePosition(s.path[s.pathIdx].X, 0.5),
+			g.InversePosition(s.path[s.pathIdx].Y, 0.5),
 		}
 		MoveMob(m, tv.Sub(mv).Normalize().Mul(m.Speed()), l)
 	}
@@ -246,9 +251,41 @@ func getPath(g *twodee.Grid, s, e twodee.Point) []twodee.GridPoint {
 	ex, ey := g.GridPosition(e.X, 0.5), g.GridPosition(e.Y, 0.5)
 	path, err := g.GetPath(sx, sy, ex, ey)
 	if err != nil {
+		if g.Get(sx, sy) { // Crap, we're inside of something. cheat!
+			fmt.Printf("Be surprised if this ever happens.\n")
+			for _, sp := range neighbors(sx, sy) {
+				sx, sy = sp.X, sp.Y
+				if !g.Get(sx, sy) {
+
+					//					fmt.Printf("Trying position (%v, %v) to (%v, %v)\n", sx, sy, ex, ey)
+					if path, err := g.GetPath(sx, sy, ex, ey); err != nil {
+						//						fmt.Printf("Shaken free with %v\n", path)
+						return path
+					}
+				}
+			}
+			//			fmt.Printf("Still stuck, perhaps we should rand move.\n")
+		}
 		return []twodee.GridPoint{}
 	}
 	return path
+}
+
+func neighbors(x, y int32) []twodee.GridPoint {
+	searchSize := 4
+	r := make([]twodee.GridPoint, 0, int(math.Pow(float64(searchSize), 2.0))-1)
+	for dx := -searchSize; dx <= searchSize; dx++ {
+		for dy := -searchSize; dy <= searchSize; dy++ {
+			if dx == 0 && dy == 0 {
+				continue
+			}
+			r = append(r, twodee.GridPoint{int32(dx), int32(dy)})
+		}
+	}
+	for i, o := range r {
+		r[i] = twodee.GridPoint{x + o.X, y + o.Y}
+	}
+	return r
 }
 
 func MaxInt(x, y int) int {
