@@ -281,6 +281,9 @@ func (l *GameLayer) Update(elapsed time.Duration) {
 }
 
 func (l *GameLayer) updateCamera(scale float32) {
+	if l.level.Player.Dead || (l.level.Boss != nil && l.level.Boss.Dead) {
+		return
+	}
 	var (
 		pPt     = l.level.Player.Pos()
 		cRect   = l.camera.WorldBounds
@@ -333,6 +336,16 @@ func (l *GameLayer) shakeCamera(e twodee.GETyper) {
 func (l *GameLayer) bossDied(e twodee.GETyper) {
 	if event, ok := e.(*BossDiedEvent); ok {
 		if l.level.Boss != nil && !l.level.Boss.Dead {
+			bounds := l.camera.WorldBounds
+			pt := l.level.Boss.Pos()
+			midpoint := bounds.Midpoint()
+			adjx := pt.X - midpoint.X
+			adjy := pt.Y - midpoint.Y
+			bounds.Min.X += adjx
+			bounds.Max.X += adjx
+			bounds.Min.Y += adjy
+			bounds.Max.Y += adjy
+			l.camera.SetWorldBounds(bounds)
 			l.level.Boss.Die()
 			l.level.Boss.SetCallback(func() {
 				l.checkBosses(event.Name)
