@@ -349,9 +349,6 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			break
 		}
 		switch event.Code {
-		case twodee.KeyX:
-			l.app.State.Debug = !l.app.State.Debug
-			fmt.Printf("Debug state: %v\n", l.app.State.Debug)
 		case twodee.KeyZ:
 			l.level.Player.Roll()
 		case twodee.KeyM:
@@ -361,11 +358,25 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 				l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PauseMusic))
 			}
 		case twodee.Key0:
-			l.loadLevel("main")
+			l.app.State.Debug = !l.app.State.Debug
+			fmt.Printf("Debug state: %v\n", l.app.State.Debug)
+			l.app.GameEventHandler.Enqueue(NewShakeEvent(3, 200, 3.0, 4.0, 1.0))
 		case twodee.Key1:
-			l.loadLevel("boss1")
+			if l.app.State.Debug {
+				l.loadLevel("boss1")
+			}
 		case twodee.Key2:
-			l.loadLevel("boss2")
+			if l.app.State.Debug {
+				l.loadLevel("boss2")
+			}
+		case twodee.Key3:
+			if l.app.State.Debug {
+				l.loadLevel("main")
+			}
+		case twodee.Key9:
+			if l.app.State.Debug {
+				l.app.GameEventHandler.Enqueue(NewBossDiedEvent())
+			}
 		}
 
 	}

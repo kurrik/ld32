@@ -33,7 +33,7 @@ const (
 
 var BossAnimations = map[BossState][]int{
 	Normal:    []int{0, 1},
-	BossDying: []int{0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5},
+	BossDying: []int{0, 1, 2, 3, 4, 5, 5},
 }
 
 var BossMap = map[string]BossMaker{
