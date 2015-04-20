@@ -286,7 +286,6 @@ func getPath(g *twodee.Grid, s, e twodee.Point) []twodee.GridPoint {
 	path, err := g.GetPath(sx, sy, ex, ey)
 	if err != nil {
 		if g.Get(sx, sy) { // Crap, we're inside of something. cheat!
-			fmt.Printf("Be surprised if this ever happens.\n")
 			for _, sp := range neighbors(sx, sy) {
 				sx, sy = sp.X, sp.Y
 				if !g.Get(sx, sy) {
