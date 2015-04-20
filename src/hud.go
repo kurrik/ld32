@@ -18,6 +18,7 @@ import (
 	twodee "../lib/twodee"
 	"github.com/go-gl/mathgl/mgl32"
 	"image/color"
+	"math"
 )
 
 type Hud struct {
@@ -106,7 +107,7 @@ func (h *Hud) UpdateLines(l *Level) {
 	// check if level's red value has changed
 	if h.levelRed != l.Color[0] {
 		// update stored red value
-		h.levelRed = l.Color[0]
+		h.levelRed = float32(math.Min(float64(l.Color[0]), 1.0))
 		// update offset
 		h.levelRedOffset = (7.7 - 5.8) * h.levelRed
 		// update the level's red color line
@@ -116,7 +117,7 @@ func (h *Hud) UpdateLines(l *Level) {
 	// check if level's green value has changed
 	if h.levelGreen != l.Color[1] {
 		// update stored green value
-		h.levelGreen = l.Color[1]
+		h.levelGreen = float32(math.Min(float64(l.Color[1]), 1.0))
 		// update offset
 		h.levelGreenOffset = (7.7 - 5.8) * h.levelGreen
 		// update the level's green color line
@@ -126,7 +127,7 @@ func (h *Hud) UpdateLines(l *Level) {
 	// check if level's blue value has changed
 	if h.levelBlue != l.Color[2] {
 		// update stored blue value
-		h.levelBlue = l.Color[2]
+		h.levelBlue = float32(math.Min(float64(l.Color[2]), 1.0))
 		// update offset
 		h.levelBlueOffset = (7.7 - 5.8) * h.levelBlue
 		// update the level's blue color line
@@ -162,6 +163,10 @@ func (h *Hud) UpdateLines(l *Level) {
 			// update the boss's blue color marker
 			h.bossBlueLine = twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + h.bossBlueOffset, 4}, mgl32.Vec2{5.87 + h.bossBlueOffset, 4}}, false)
 		}
+	} else {
+		h.bossRedLine = twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.6}, mgl32.Vec2{5.87, 4.6}}, false)
+		h.bossGreenLine = twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4.3}, mgl32.Vec2{5.87, 4.3}}, false)
+		h.bossBlueLine = twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8, 4}, mgl32.Vec2{5.87, 4}}, false)
 	}
 
 	return
