@@ -135,6 +135,7 @@ func (l *GameLayer) loadLevel(name string) (err error) {
 	} else {
 		// else trigger PlayBossMusic event
 		l.app.GameEventHandler.Enqueue(twodee.NewBasicGameEvent(PlayBossMusic))
+		l.hud.UpdateLines(l.level, true)
 	}
 	return
 }
@@ -214,7 +215,7 @@ func (l *GameLayer) Render() {
 
 			modelview := mgl32.Ident4()
 
-			l.hud.UpdateLines(l.level)
+			l.hud.UpdateLines(l.level, false)
 
 			l.lines.Bind()
 			l.lines.Draw(l.hud.blackLine1, modelview, l.hud.blackStyle)

@@ -114,22 +114,32 @@ func NewVegState() *VegState {
 
 // ExamineWorld always returns a new SearchState.
 func (s *VegState) ExamineWorld(m Mob, l *Level) MobState {
-	return &SearchState{m.SearchPattern(), 0, &BaseState{"Search"}}
+	return &SearchState{
+		Pattern:        m.SearchPattern(),
+		targetPointIdx: 0,
+		path:           []twodee.GridPoint{},
+		pathIdx:        0,
+		pathAge:        maxPathAge,
+		BaseState:      &BaseState{"Search"}}
 }
 
 // SearchState is the state during which a mobile is aimlessly wandering,
 // hoping to chance across the player.
 // TODO: Implement Enter and Exit to have searching animations.
 type SearchState struct {
-	Pattern        []mgl32.Vec2
-	targetPointIdx int
+	Pattern          []mgl32.Vec2
+	targetPointIdx   int
+	path             []twodee.GridPoint
+	pathIdx, pathAge int
 	*BaseState
 }
 
 // ExamineWorld returns HuntState if the player is seen, otherwise the mob
 // continues wandering according to its search pattern.
 func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
-	l.SetBossPath([]twodee.GridPoint{})
+	s.pathAge++
+	g := l.BossCollisions
+	l.SetBossPath(s.path)
 	if playerSeen(m, l) {
 		return NewHuntState()
 	}
@@ -137,13 +147,37 @@ func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
 		// Do nothing right now with no search pattern.
 		return s
 	}
-	tv := s.Pattern[s.targetPointIdx]
+	cTarget := s.Pattern[s.targetPointIdx]
+	if s.pathAge > maxPathAge {
+		if path := getPath(g, m.Pos(), twodee.Point{cTarget[0], cTarget[1]}); len(path) > 0 {
+			s.path = path
+			s.pathAge = 0
+			s.pathIdx = 0
+		}
+		// Otherwise retain current path.
+	}
+	if len(s.path) == 0 {
+		return s // Crap, still no path generated...
+	}
 	mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
-	if tv.Sub(mv).Len() < 2 { // CLOSE ENOUGH!
-		s.targetPointIdx = (s.targetPointIdx + 1) % len(s.Pattern)
-		tv = s.Pattern[s.targetPointIdx]
+	for s.pathIdx < len(s.path)-1 {
+		tv := mgl32.Vec2{
+			g.InversePosition(s.path[s.pathIdx].X, 0.5),
+			g.InversePosition(s.path[s.pathIdx].Y, 0.5),
+		}
+		if tv.Sub(mv).Len() >= 2 {
+			break
+		}
+		s.pathIdx++
+	}
+	tv := mgl32.Vec2{
+		g.InversePosition(s.path[s.pathIdx].X, 0.5),
+		g.InversePosition(s.path[s.pathIdx].Y, 0.5),
 	}
 	MoveMob(m, tv.Sub(mv).Normalize().Mul(m.Speed()), l)
+	if s.pathIdx == len(s.path)-1 && tv.Sub(mv).Len() < 2 {
+		s.targetPointIdx = (s.targetPointIdx + 1) % len(s.Pattern)
+	}
 	return s
 }
 

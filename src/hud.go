@@ -102,7 +102,7 @@ func newHud() (hud *Hud, err error) {
 	return
 }
 
-func (h *Hud) UpdateLines(l *Level) {
+func (h *Hud) UpdateLines(l *Level, initialLoad bool) {
 
 	// check if level's red value has changed
 	if h.levelRed != l.Color[0] {
@@ -137,7 +137,7 @@ func (h *Hud) UpdateLines(l *Level) {
 	// update the color markers for the current boss
 	if l.Boss != nil {
 
-		if h.bossRed != l.Boss.Color[0] {
+		if (h.bossRed != l.Boss.Color[0]) || initialLoad {
 			// update stored boss red value
 			h.bossRed = l.Boss.Color[0]
 			// update offset
@@ -146,7 +146,7 @@ func (h *Hud) UpdateLines(l *Level) {
 			h.bossRedLine = twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + h.bossRedOffset, 4.6}, mgl32.Vec2{5.87 + h.bossRedOffset, 4.6}}, false)
 		}
 
-		if h.bossGreen != l.Boss.Color[1] {
+		if (h.bossGreen != l.Boss.Color[1]) || initialLoad {
 			// update stored boss green value
 			h.bossGreen = l.Boss.Color[1]
 			// update offset
@@ -155,7 +155,7 @@ func (h *Hud) UpdateLines(l *Level) {
 			h.bossGreenLine = twodee.NewLineGeometry([]mgl32.Vec2{mgl32.Vec2{5.8 + h.bossGreenOffset, 4.3}, mgl32.Vec2{5.87 + h.bossGreenOffset, 4.3}}, false)
 		}
 
-		if h.bossBlue != l.Boss.Color[2] {
+		if (h.bossBlue != l.Boss.Color[2]) || initialLoad {
 			// update stored boss blue value
 			h.bossBlue = l.Boss.Color[2]
 			// update offset
