@@ -44,6 +44,7 @@ type GameLayer struct {
 	spritetexture        *twodee.Texture
 	level                *Level
 	hud                  *Hud
+	splash               string
 	shakeObserverId      int
 	shakePriority        int32
 	bossDiedObserverId   int
@@ -78,6 +79,7 @@ func NewGameLayer(winb twodee.Rectangle, app *Application) (layer *GameLayer, er
 		},
 		shakePriority: -1,
 		hud:           hud,
+		splash:        "splash",
 	}
 	err = layer.Reset()
 	return
@@ -122,7 +124,7 @@ func (l *GameLayer) loadLevel(name string) (err error) {
 	if l.level != nil {
 		l.level.Delete()
 	}
-	if l.level, err = NewLevel(path, l.spritesheet, l.app.GameEventHandler); err != nil {
+	if l.level, err = NewLevel(name, path, l.spritesheet, l.app.GameEventHandler); err != nil {
 		return
 	}
 	l.updateCamera(1.0)
@@ -178,7 +180,12 @@ func (l *GameLayer) Delete() {
 }
 
 func (l *GameLayer) Render() {
-	if l.level != nil {
+	if l.splash != "" {
+		l.spritetexture.Bind()
+		splash := []twodee.SpriteConfig{l.getSplashSpriteConfig(l.splash, l.camera)}
+		l.sprite.Draw(splash)
+		l.spritetexture.Unbind()
+	} else if l.level != nil {
 		if l.level.Player.Dead {
 			l.spritetexture.Bind()
 			l.sprite.Draw([]twodee.SpriteConfig{l.level.Player.SpriteConfig(l.spritesheet)})
@@ -253,6 +260,9 @@ func (l *GameLayer) drawBossLines() {
 }
 
 func (l *GameLayer) Update(elapsed time.Duration) {
+	if l.splash != "" {
+		return
+	}
 	if !l.checkJoy() {
 		l.checkKeys()
 	}
@@ -320,11 +330,14 @@ func (l *GameLayer) shakeCamera(e twodee.GETyper) {
 }
 
 func (l *GameLayer) bossDied(e twodee.GETyper) {
-	if l.level.Boss != nil && !l.level.Boss.Dead {
-		l.level.Boss.Die()
-		l.level.Boss.SetCallback(func() {
-			l.loadLevel("main")
-		})
+	if event, ok := e.(*BossDiedEvent); ok {
+		if l.level.Boss != nil && !l.level.Boss.Dead {
+			l.level.Boss.Die()
+			l.level.Boss.SetCallback(func() {
+				l.checkBosses(event.Name)
+				l.loadLevel("main")
+			})
+		}
 	}
 }
 
@@ -337,6 +350,21 @@ func (l *GameLayer) playerDied(e twodee.GETyper) {
 	}
 }
 
+func (l *GameLayer) checkBosses(name string) {
+	var (
+		ok     bool
+		boss   string
+		needed = []string{"boss1", "boss2"}
+	)
+	l.app.State.KilledBosses[name] = true
+	for _, boss = range needed {
+		if _, ok = l.app.State.KilledBosses[boss]; !ok {
+			return
+		}
+	}
+	l.splash = "won"
+}
+
 func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 	switch event := evt.(type) {
 	case *twodee.MouseMoveEvent:
@@ -347,6 +375,13 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 		//l.handleMovement(event)
 		if event.Type == twodee.Release {
 			break
+		}
+		if l.splash != "" {
+			if l.splash == "won" {
+				l.app.State.Exit = true
+			}
+			l.splash = ""
+			return false
 		}
 		switch event.Code {
 		case twodee.KeyZ:
@@ -375,10 +410,11 @@ func (l *GameLayer) HandleEvent(evt twodee.Event) bool {
 			}
 		case twodee.Key9:
 			if l.app.State.Debug {
-				l.app.GameEventHandler.Enqueue(NewBossDiedEvent())
+				if l.level.Boss != nil {
+					l.app.GameEventHandler.Enqueue(NewBossDiedEvent(l.level.Boss.Name))
+				}
 			}
 		}
-
 	}
 	return true
 }
@@ -456,4 +492,19 @@ func (l *GameLayer) loadSpritesheet() (err error) {
 		return
 	}
 	return
+}
+
+func (l *GameLayer) getSplashSpriteConfig(name string, camera *twodee.Camera) twodee.SpriteConfig {
+	var (
+		frame = l.spritesheet.GetFrame(name)
+		pt    = camera.WorldBounds.Midpoint()
+	)
+	return twodee.SpriteConfig{
+		View: twodee.ModelViewConfig{
+			pt.X, pt.Y, 0,
+			0, 0, 0,
+			1.0, 1.0, 1.0,
+		},
+		Frame: frame.Frame,
+	}
 }

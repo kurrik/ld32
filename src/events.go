@@ -88,11 +88,13 @@ func NewBossColorEvent(color mgl32.Vec3) *BossColorEvent {
 
 type BossDiedEvent struct {
 	twodee.BasicGameEvent
+	Name string
 }
 
-func NewBossDiedEvent() *BossDiedEvent {
+func NewBossDiedEvent(name string) *BossDiedEvent {
 	return &BossDiedEvent{
-		*twodee.NewBasicGameEvent(BossDied),
+		BasicGameEvent: *twodee.NewBasicGameEvent(BossDied),
+		Name: name,
 	}
 }
 

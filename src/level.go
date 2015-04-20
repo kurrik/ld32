@@ -25,6 +25,7 @@ import (
 )
 
 type Level struct {
+	Name            string
 	Player          *Player
 	Boss            *Boss
 	Props           PropList
@@ -47,7 +48,7 @@ type Portal struct {
 	Level string
 }
 
-func NewLevel(mapPath string, sheet *twodee.Spritesheet, events *twodee.GameEventHandler) (level *Level, err error) {
+func NewLevel(name string, mapPath string, sheet *twodee.Spritesheet, events *twodee.GameEventHandler) (level *Level, err error) {
 	level = &Level{
 		Boss:   nil,
 		Player: NewPlayer(events, sheet),
@@ -55,6 +56,7 @@ func NewLevel(mapPath string, sheet *twodee.Spritesheet, events *twodee.GameEven
 		Plates: NewPropList(),
 		Sheet:  sheet,
 		events: events,
+		Name:   name,
 	}
 	level.Props = append(level.Props, level.Player)
 	if err = level.loadMap(mapPath); err != nil {

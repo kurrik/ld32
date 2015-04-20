@@ -49,7 +49,7 @@ func MakeBoss1(x, y float32, events *twodee.GameEventHandler) *Boss {
 		mgl32.Vec2{x - 5, y},
 		mgl32.Vec2{x + 5, y},
 	}
-	return NewBoss(&Mobile{
+	return NewBoss("boss1", &Mobile{
 		DetectionRadius: 4,
 		BoredThreshold:  5 * time.Second,
 		speed:           0.04,
@@ -62,7 +62,7 @@ func MakeBoss1(x, y float32, events *twodee.GameEventHandler) *Boss {
 }
 
 func MakeBoss2(x, y float32, events *twodee.GameEventHandler) *Boss {
-	return NewBoss(&Mobile{
+	return NewBoss("boss2", &Mobile{
 		DetectionRadius: 10,
 		BoredThreshold:  20 * time.Second,
 		speed:           0.04,
@@ -84,9 +84,10 @@ type Boss struct {
 	Colors        []mgl32.Vec3
 	events        *twodee.GameEventHandler
 	Dead          bool
+	Name          string
 }
 
-func NewBoss(m *Mobile, colors []mgl32.Vec3, events *twodee.GameEventHandler) *Boss {
+func NewBoss(name string, m *Mobile, colors []mgl32.Vec3, events *twodee.GameEventHandler) *Boss {
 	b := &Boss{
 		AnimatingEntity: twodee.NewAnimatingEntity(
 			0, 0, 1, 1, 0,
@@ -101,6 +102,7 @@ func NewBoss(m *Mobile, colors []mgl32.Vec3, events *twodee.GameEventHandler) *B
 		Colors:     colors,
 		events:     events,
 		Dead:       false,
+		Name:       name,
 	}
 	b.NextColor()
 	return b
@@ -112,7 +114,7 @@ func (b *Boss) NextColor() {
 		b.Colors = b.Colors[1:]
 		b.events.Enqueue(NewBossColorEvent(b.Color))
 	} else {
-		b.events.Enqueue(NewBossDiedEvent())
+		b.events.Enqueue(NewBossDiedEvent(b.Name))
 	}
 }
 
