@@ -15,7 +15,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -97,10 +96,10 @@ func (s *BaseState) ExamineWorld(m Mob, l *Level) MobState {
 }
 func (s *BaseState) Update(m Mob, d time.Duration) {}
 func (s *BaseState) Enter(m Mob) {
-	fmt.Printf("Entering the %v state.\n", s.Name)
+	//	fmt.Printf("Entering the %v state.\n", s.Name)
 }
 func (s *BaseState) Exit(m Mob) {
-	fmt.Printf("Exiting the %v state.\n", s.Name)
+	//	fmt.Printf("Exiting the %v state.\n", s.Name)
 }
 
 // VegState encapsulates the state of being a vegetable.
