@@ -22,7 +22,6 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"time"
-	"fmt"
 )
 
 type Level struct {
@@ -76,9 +75,6 @@ func (l *Level) SetBossPath(path []twodee.GridPoint) {
 
 func (l *Level) changeColor(e twodee.GETyper) {
 	if event, ok := e.(*ColorEvent); ok {
-		fmt.Printf("Red value: %v\n", event.Color[0])
-		fmt.Printf("Green value: %v\n", event.Color[1])
-		fmt.Printf("Blue value: %v\n", event.Color[2])
 		var (
 			sentEvent = false
 		)
