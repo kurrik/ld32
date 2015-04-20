@@ -152,6 +152,7 @@ func (b *Boss) Die() {
 	if !b.Dead {
 		b.SetFrames(BossAnimations[BossDying])
 		b.Dead = true
+		b.events.Enqueue(twodee.NewBasicGameEvent(PlayBossDeathEffect))
 	}
 }
 
