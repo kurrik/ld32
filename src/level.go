@@ -76,6 +76,7 @@ func (l *Level) changeColor(e twodee.GETyper) {
 		var (
 			sentEvent = false
 		)
+		l.events.Enqueue(twodee.NewBasicGameEvent(PlayColorChangeEffect))
 		if event.Add {
 			l.Color = l.Color.Add(event.Color)
 		} else {

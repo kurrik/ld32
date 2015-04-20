@@ -176,6 +176,7 @@ func (p *Player) Die() {
 	if !p.Dead {
 		p.Dead = true
 		p.swapState(Left|Right|Down|Up|Walking|Rolling|Standing, Dying)
+		p.events.Enqueue(twodee.NewBasicGameEvent(PlayPlayerDeathEffect))
 	}
 }
 
@@ -191,6 +192,7 @@ func (p *Player) Roll() {
 		p.rolling = false
 	})
 	p.events.Enqueue(NewShakeEvent(0, 500, 0.08, 4.0, 1.0))
+	p.events.Enqueue(twodee.NewBasicGameEvent(PlayRollEffect))
 }
 
 func (p *Player) remState(state PlayerState) {
