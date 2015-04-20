@@ -356,12 +356,16 @@ func (l *GameLayer) bossDied(e twodee.GETyper) {
 }
 
 func (l *GameLayer) playerDied(e twodee.GETyper) {
-	if !l.level.Player.Dead {
-		l.level.Player.Die()
-		l.level.Player.SetCallback(func() {
-			l.loadLevel("main")
-		})
+	if l.app.State.Debug {
+		fmt.Printf("Player died\n")
 	}
+	l.level.Player.Die()
+	l.level.Player.SetCallback(func() {
+		if l.app.State.Debug {
+			fmt.Printf("Done animating death\n")
+		}
+		l.loadLevel("main")
+	})
 }
 
 func (l *GameLayer) checkBosses(name string) {

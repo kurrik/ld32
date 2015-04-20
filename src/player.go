@@ -116,10 +116,11 @@ func (p *Player) HandleCollision(player *Player) {
 }
 
 func (p *Player) UpdateLevel(elapsed time.Duration, level *Level) {
-	var (
-		isMoving = p.dx != 0 || p.dy != 0
-	)
+	p.AnimatingEntity.Update(elapsed)
 	if !p.Dead {
+		var (
+			isMoving = p.dx != 0 || p.dy != 0
+		)
 		if !p.rolling && isMoving {
 			var (
 				magX = math.Abs(float64(p.dx))
@@ -147,7 +148,6 @@ func (p *Player) UpdateLevel(elapsed time.Duration, level *Level) {
 			p.swapState(Rolling|Walking, Standing)
 		}
 	}
-	p.AnimatingEntity.Update(elapsed)
 }
 
 func (p *Player) move(vec mgl32.Vec2, level *Level) {
@@ -175,13 +175,13 @@ func (p *Player) MoveY(mag float32) {
 func (p *Player) Die() {
 	if !p.Dead {
 		p.Dead = true
-		p.swapState(Left|Right|Down|Up|Walking|Rolling|Standing, Dying)
+		p.setState(Dying)
 		p.events.Enqueue(twodee.NewBasicGameEvent(PlayPlayerDeathEffect))
 	}
 }
 
 func (p *Player) Roll() {
-	if p.rolling {
+	if p.rolling || p.Dead {
 		return
 	}
 	p.rolling = true

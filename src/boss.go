@@ -50,9 +50,9 @@ func MakeBoss1(x, y float32, events *twodee.GameEventHandler) *Boss {
 		mgl32.Vec2{x + 4, y},
 	}
 	return NewBoss("boss1", &Mobile{
-		DetectionRadius: 4,
+		DetectionRadius: 10,
 		BoredThreshold:  5 * time.Second,
-		speed:           0.04,
+		speed:           0.07,
 		searchPattern:   sp,
 	}, []mgl32.Vec3{
 		mgl32.Vec3{1.0, 0.0, 0.0},
@@ -65,7 +65,7 @@ func MakeBoss2(x, y float32, events *twodee.GameEventHandler) *Boss {
 	return NewBoss("boss2", &Mobile{
 		DetectionRadius: 10,
 		BoredThreshold:  20 * time.Second,
-		speed:           0.04,
+		speed:           0.05,
 		searchPattern:   []mgl32.Vec2{},
 	}, []mgl32.Vec3{
 		mgl32.Vec3{0.0, 1.0, 1.0},
