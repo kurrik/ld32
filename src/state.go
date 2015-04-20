@@ -15,13 +15,15 @@
 package main
 
 type State struct {
-	Exit  bool
-	Debug bool
+	Exit         bool
+	Debug        bool
+	KilledBosses map[string]bool
 }
 
 func NewState() *State {
 	return &State{
-		Exit:  false,
-		Debug: false,
+		Exit:         false,
+		Debug:        false,
+		KilledBosses: map[string]bool{},
 	}
 }
