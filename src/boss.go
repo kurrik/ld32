@@ -52,7 +52,7 @@ func MakeBoss1(x, y float32, events *twodee.GameEventHandler) *Boss {
 	return NewBoss("boss1", &Mobile{
 		DetectionRadius: 10,
 		BoredThreshold:  5 * time.Second,
-		speed:           0.07,
+		speed:           0.06,
 		searchPattern:   sp,
 	}, []mgl32.Vec3{
 		mgl32.Vec3{1.0, 0.0, 0.0},
