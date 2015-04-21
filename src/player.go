@@ -116,7 +116,6 @@ func (p *Player) HandleCollision(player *Player) {
 }
 
 func (p *Player) UpdateLevel(elapsed time.Duration, level *Level) {
-	p.AnimatingEntity.Update(elapsed)
 	if !p.Dead {
 		var (
 			isMoving = p.dx != 0 || p.dy != 0
@@ -148,6 +147,7 @@ func (p *Player) UpdateLevel(elapsed time.Duration, level *Level) {
 			p.swapState(Rolling|Walking, Standing)
 		}
 	}
+	p.AnimatingEntity.Update(elapsed)
 }
 
 func (p *Player) move(vec mgl32.Vec2, level *Level) {
