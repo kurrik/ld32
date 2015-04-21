@@ -138,7 +138,8 @@ build/$(PROJECT)-linux-$(VERSION).zip: \
 	$(subst src/resources/,$(NIXBUILD)/resources/,$(RUNTIME_RESOURCES))
 	cd build && zip -r $(notdir $@) $(PROJECT)-linux
 
-build: build/$(PROJECT)-win-$(VERSION).zip
+build-win: build/$(PROJECT)-win-$(VERSION).zip
+build: build/$(PROJECT)-osx-$(VERSION).zip
 
 run: build
 	$(OSXBUILD)/MacOS/launch.sh
