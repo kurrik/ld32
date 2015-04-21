@@ -287,11 +287,11 @@ func (l *GameLayer) updateCamera(scale float32) {
 	var (
 		pPt     = l.level.Player.Pos()
 		cRect   = l.camera.WorldBounds
-		cWidth  = cRect.Max.X - cRect.Min.X
-		cHeight = cRect.Max.Y - cRect.Min.Y
-		cMidX   = cRect.Min.X + (cWidth / 2.0)
-		cMidY   = cRect.Min.Y + (cHeight / 2.0)
-		pVec    = mgl32.Vec2{pPt.X, pPt.Y}
+		cWidth  = cRect.Max.X() - cRect.Min.X()
+		cHeight = cRect.Max.Y() - cRect.Min.Y()
+		cMidX   = cRect.Min.X() + (cWidth / 2.0)
+		cMidY   = cRect.Min.Y() + (cHeight / 2.0)
+		pVec    = pPt.Vec2
 		cVec    = mgl32.Vec2{cMidX, cMidY}
 		diff    = pVec.Sub(cVec)
 		bounds  twodee.Rectangle
@@ -306,10 +306,10 @@ func (l *GameLayer) updateCamera(scale float32) {
 		adj[1] += l.shake.Value()
 	}
 	bounds = twodee.Rect(
-		cRect.Min.X+adj[0],
-		cRect.Min.Y+adj[1],
-		cRect.Max.X+adj[0],
-		cRect.Max.Y+adj[1],
+		cRect.Min.X()+adj[0],
+		cRect.Min.Y()+adj[1],
+		cRect.Max.X()+adj[0],
+		cRect.Max.Y()+adj[1],
 	)
 	l.camera.SetWorldBounds(bounds)
 }
@@ -339,12 +339,12 @@ func (l *GameLayer) bossDied(e twodee.GETyper) {
 			bounds := l.camera.WorldBounds
 			pt := l.level.Boss.Pos()
 			midpoint := bounds.Midpoint()
-			adjx := pt.X - midpoint.X
-			adjy := pt.Y - midpoint.Y
-			bounds.Min.X += adjx
-			bounds.Max.X += adjx
-			bounds.Min.Y += adjy
-			bounds.Max.Y += adjy
+			adjx := pt.X() - midpoint.X()
+			adjy := pt.Y() - midpoint.Y()
+			bounds.Min.Vec2[0] += adjx
+			bounds.Max.Vec2[0] += adjx
+			bounds.Min.Vec2[1] += adjy
+			bounds.Max.Vec2[1] += adjy
 			l.camera.SetWorldBounds(bounds)
 			l.level.Boss.Die()
 			l.level.Boss.SetCallback(func() {
@@ -519,7 +519,7 @@ func (l *GameLayer) getSplashSpriteConfig(name string, camera *twodee.Camera) tw
 	)
 	return twodee.SpriteConfig{
 		View: twodee.ModelViewConfig{
-			pt.X, pt.Y, 0,
+			pt.X(), pt.Y(), 0,
 			0, 0, 0,
 			2.0, 2.0, 1.0,
 		},

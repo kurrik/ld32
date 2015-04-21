@@ -64,7 +64,7 @@ func (m *Mobile) HandleCollision(p *Player) {}
 func MoveMob(m Mob, v mgl32.Vec2, l *Level) {
 	// Fuck all this collision noise.
 	pos := m.Pos()
-	end := twodee.Pt(pos.X+v[0], pos.Y+v[1])
+	end := twodee.Pt(pos.X()+v[0], pos.Y()+v[1])
 	m.MoveTo(end)
 }
 
@@ -148,7 +148,7 @@ func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
 	}
 	cTarget := s.Pattern[s.targetPointIdx]
 	if s.pathAge > maxPathAge {
-		if path := getPath(g, m.Pos(), twodee.Point{cTarget[0], cTarget[1]}); len(path) > 0 {
+		if path := getPath(g, m.Pos(), twodee.Point{cTarget}); len(path) > 0 {
 			s.path = path
 			s.pathAge = 0
 			s.pathIdx = 0
@@ -158,7 +158,7 @@ func (s *SearchState) ExamineWorld(m Mob, l *Level) MobState {
 	if len(s.path) == 0 {
 		return s // Crap, still no path generated...
 	}
-	mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
+	mv := mgl32.Vec2{m.Pos().X(), m.Pos().Y()}
 	for s.pathIdx < len(s.path)-1 {
 		tv := mgl32.Vec2{
 			g.InversePosition(s.path[s.pathIdx].X, 0.5),
@@ -225,7 +225,7 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		ns = s
 	}
 	if ns != nil {
-		pv := mgl32.Vec2{l.Player.Pos().X, l.Player.Pos().Y}
+		pv := mgl32.Vec2{l.Player.Pos().X(), l.Player.Pos().Y()}
 		if m.ShouldSwing(pv) {
 			// Return Swing state.
 		}
@@ -235,7 +235,7 @@ func (s *HuntState) ExamineWorld(m Mob, l *Level) (ns MobState) {
 		if s.pathIdx == len(s.path) {
 			return ns
 		}
-		mv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
+		mv := m.Pos().Vec2
 		for s.pathIdx < len(s.path)-1 { // Never roll off the end.
 			tv := mgl32.Vec2{
 				g.InversePosition(s.path[s.pathIdx].X, 0.5),
@@ -266,8 +266,8 @@ func (s *HuntState) Update(m Mob, d time.Duration) {
 // within its detection radius.
 func playerSeen(m Mob, l *Level) bool {
 	c := l.BossCollisions
-	mpv := mgl32.Vec2{m.Pos().X, m.Pos().Y}
-	ppv := mgl32.Vec2{l.Player.Pos().X, l.Player.Pos().Y}
+	mpv := m.Pos().Vec2
+	ppv := l.Player.Pos().Vec2
 	if c.CanSee(mpv, ppv, 0.5, 0.5) && m.Detect(mpv.Sub(ppv).Len()) {
 		return true
 	}
@@ -280,8 +280,8 @@ func playerSeen(m Mob, l *Level) bool {
 // code should therefore map back to "world" coordinates for use when moving.
 func getPath(g *twodee.Grid, s, e twodee.Point) []twodee.GridPoint {
 	// Need to map from points in the game to locations on the grid board.
-	sx, sy := g.GridPosition(s.X, 0.5), g.GridPosition(s.Y, 0.5)
-	ex, ey := g.GridPosition(e.X, 0.5), g.GridPosition(e.Y, 0.5)
+	sx, sy := g.GridPosition(s.X(), 0.5), g.GridPosition(s.Y(), 0.5)
+	ex, ey := g.GridPosition(e.X(), 0.5), g.GridPosition(e.Y(), 0.5)
 	path, err := g.GetPath(sx, sy, ex, ey)
 	if err != nil {
 		if g.Get(sx, sy) { // Crap, we're inside of something. cheat!

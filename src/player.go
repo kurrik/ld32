@@ -100,7 +100,7 @@ func (p *Player) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 	}
 	return twodee.SpriteConfig{
 		View: twodee.ModelViewConfig{
-			pt.X, pt.Y, 0,
+			pt.X(), pt.Y(), 0,
 			0, 0, 0,
 			scaleX, 1.0, 1.0,
 		},
@@ -109,7 +109,7 @@ func (p *Player) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 }
 
 func (p *Player) Bottom() float32 {
-	return p.AnimatingEntity.Bounds().Min.Y
+	return p.AnimatingEntity.Bounds().Min.Y()
 }
 
 func (p *Player) HandleCollision(player *Player) {
@@ -156,12 +156,12 @@ func (p *Player) move(vec mgl32.Vec2, level *Level) {
 		pos    = p.Pos()
 	)
 	vec = level.Collisions.FixMove(mgl32.Vec4{
-		bounds.Min.X,
-		bounds.Min.Y,
-		bounds.Max.X,
-		bounds.Max.Y,
+		bounds.Min.X(),
+		bounds.Min.Y(),
+		bounds.Max.X(),
+		bounds.Max.Y(),
 	}, vec, 0.5, 0.5)
-	p.MoveTo(twodee.Pt(pos.X+vec[0], pos.Y+vec[1]))
+	p.MoveTo(twodee.Pt(pos.X()+vec[0], pos.Y()+vec[1]))
 }
 
 func (p *Player) MoveX(mag float32) {

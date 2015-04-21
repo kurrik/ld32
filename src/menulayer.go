@@ -119,7 +119,7 @@ func (ml *MenuLayer) Render() {
 		textcache *twodee.TextCache
 		texture   *twodee.Texture
 		ok        bool
-		y         = ml.camera.WorldBounds.Max.Y
+		y         = ml.camera.WorldBounds.Max.Y()
 	)
 	ml.text.Bind()
 	for i, item := range ml.menu.Items() {
@@ -172,7 +172,7 @@ func (ml *MenuLayer) HandleEvent(evt twodee.Event) bool {
 		}
 	case *twodee.MouseMoveEvent:
 		var (
-			y         = ml.camera.WorldBounds.Max.Y
+			y         = ml.camera.WorldBounds.Max.Y()
 			my        = y - event.Y
 			texture   *twodee.Texture
 			textcache *twodee.TextCache

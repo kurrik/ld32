@@ -55,7 +55,7 @@ func NewApplication() (app *Application, err error) {
 	}
 	context.SetFullscreen(false)
 	context.SetCursor(false)
-	if err = context.CreateWindow(int(winbounds.Max.X), int(winbounds.Max.Y), name); err != nil {
+	if err = context.CreateWindow(int(winbounds.Max.X()), int(winbounds.Max.Y()), name); err != nil {
 		return
 	}
 	layers = twodee.NewLayers()

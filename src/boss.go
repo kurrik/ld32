@@ -147,7 +147,7 @@ func (b *Boss) Update(elapsed time.Duration) {
 }
 
 func (b *Boss) Bottom() float32 {
-	return b.AnimatingEntity.Bounds().Min.Y
+	return b.AnimatingEntity.Bounds().Min.Y()
 }
 
 func (b *Boss) Die() {
@@ -165,7 +165,7 @@ func (b *Boss) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 	// Implement facing left...
 	return twodee.SpriteConfig{
 		View: twodee.ModelViewConfig{
-			pt.X, pt.Y, 0,
+			pt.X(), pt.Y(), 0,
 			0, 0, 0,
 			scaleX, 1.0, 1.0,
 		},
@@ -175,6 +175,6 @@ func (b *Boss) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig {
 }
 
 func (b *Boss) ShouldSwing(p mgl32.Vec2) bool {
-	bv := mgl32.Vec2{b.Pos().X, b.Pos().Y}
+	bv := mgl32.Vec2{b.Pos().X(), b.Pos().Y()}
 	return p.Sub(bv).Len() < 1
 }

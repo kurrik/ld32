@@ -49,7 +49,7 @@ func (p *StaticProp) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig
 	)
 	return twodee.SpriteConfig{
 		View: twodee.ModelViewConfig{
-			pos.X, pos.Y, 0,
+			pos.X(), pos.Y(), 0,
 			0, 0, 0,
 			1.0, 1.0, 1.0,
 		},
@@ -58,7 +58,7 @@ func (p *StaticProp) SpriteConfig(sheet *twodee.Spritesheet) twodee.SpriteConfig
 }
 
 func (p *StaticProp) Bottom() float32 {
-	return p.Entity.Bounds().Min.Y
+	return p.Entity.Bounds().Min.Y()
 }
 
 func (p *StaticProp) HandleCollision(player *Player) {
