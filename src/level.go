@@ -18,7 +18,7 @@ import (
 	"../lib/twodee"
 	"encoding/hex"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/kurrik/tmxgo"
+	"github.com/pikkpoiss/tmxgo"
 	"io/ioutil"
 	"path/filepath"
 	"time"
