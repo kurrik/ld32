@@ -101,13 +101,18 @@ func (a *Application) Delete() {
 
 func (a *Application) ProcessEvents() {
 	var (
-		evt  twodee.Event
-		loop = true
+		evt   twodee.Event
+		loop  = true
+		count = 0
 	)
 	for loop {
 		select {
 		case evt = <-a.Context.Events.Events:
 			a.layers.HandleEvent(evt)
+			count++
+			if count > 10 {
+				loop = false
+			}
 		default:
 			// No more events
 			loop = false
@@ -131,16 +136,16 @@ func main() {
 		updated_to   = current_time
 		step         = twodee.Step60Hz
 	)
-	for !app.Context.Window.ShouldClose() && !app.State.Exit {
+	for !app.Context.ShouldClose() && !app.State.Exit {
+		app.Context.Events.Poll()
+		app.GameEventHandler.Poll()
+		app.ProcessEvents()
 		for !updated_to.After(current_time) {
 			app.Update(step)
 			updated_to = updated_to.Add(step)
 		}
+		current_time = current_time.Add(step)
 		app.Draw()
-		app.Context.Window.SwapBuffers()
-		app.Context.Events.Poll()
-		app.GameEventHandler.Poll()
-		app.ProcessEvents()
-		current_time = time.Now()
+		app.Context.SwapBuffers()
 	}
 }
