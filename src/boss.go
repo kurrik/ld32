@@ -20,7 +20,7 @@ import (
 
 	"github.com/go-gl/mathgl/mgl32"
 
-	"../lib/twodee"
+	"../lib/twodee/twodee"
 )
 
 type BossState int32

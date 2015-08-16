@@ -15,7 +15,7 @@
 package main
 
 import (
-	twodee "../lib/twodee"
+	twodee "../lib/twodee/twodee"
 	"fmt"
 	"image/color"
 	"time"

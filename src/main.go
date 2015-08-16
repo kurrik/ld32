@@ -15,7 +15,7 @@
 package main
 
 import (
-	twodee "../lib/twodee"
+	twodee "../lib/twodee/twodee"
 	"fmt"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"runtime"

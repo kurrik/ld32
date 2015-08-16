@@ -18,7 +18,7 @@ import (
 	"math"
 	"time"
 
-	"../lib/twodee"
+	"../lib/twodee/twodee"
 	"github.com/go-gl/mathgl/mgl32"
 )
 

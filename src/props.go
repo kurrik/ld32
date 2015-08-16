@@ -15,7 +15,7 @@
 package main
 
 import (
-	"../lib/twodee"
+	"../lib/twodee/twodee"
 	"sort"
 	"time"
 )

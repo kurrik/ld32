@@ -15,7 +15,7 @@
 package main
 
 import (
-	"../lib/twodee"
+	"../lib/twodee/twodee"
 	"encoding/hex"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/pikkpoiss/tmxgo"
