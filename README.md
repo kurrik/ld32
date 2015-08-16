@@ -10,12 +10,20 @@ Ludum Dare 32 - theme 'An Unconventional Weapon'
 
 ## Setup
 
-Complete the setup steps for the twodee lib.
-
 Run:
 
 	git submodule init
 	git submodule update
+
+This installs the twodee lib to `lib/twodee`.  You'll need to make sure deps are
+set up correctly.  Run:
+
+	cd lib/twodee
+	./scripts/setup.sh
+
+To run `chromos`, execute the following from the project root:
+
+	make run
 
 ## Brainstorming
 
