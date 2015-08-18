@@ -9,7 +9,7 @@ UNAME   = $(shell uname)
 
 ifeq ($(UNAME), Darwin)
 	PLATFORM := osx
-else ifeq ($(UNAME), Windows)
+else ifeq ($(UNAME), MINGW32_NT-6.2)
 	PLATFORM := win
 else
 	PLATFORM := nix

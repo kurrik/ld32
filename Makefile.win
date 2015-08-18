@@ -1,25 +1,33 @@
-.phony: build run
+.phony: build run package
 
 ICON_ASSETS = $(wildcard assets/*.icns)
 
 APPDIR    = $(PROJECT)-win
 APPROOT   = build/$(APPDIR)
 BUILDROOT = $(APPROOT)
+LIBS      = $(subst lib/win32-x64,$(BUILDROOT),$(wildcard lib/win32-x64/*.dll))
 
-$(BUILDROOT)/$(PROJECT).exe: $(SOURCES)
+$(BUILDROOT)/%.dll: lib/win32-x64/%.dll
+	mkdir -p $(dir $@)
+	cp $< $@
+
+$(BUILDROOT)/$(PROJECT).exe: $(SOURCES) $(LIBS)
 	mkdir -p $(dir $@)
 	go build -o $@ src/*.go
+	cp ../twodee/build/usr/bin/*.dll $(BUILDROOT)
 
 $(BUILDROOT)/resources/%: src/resources/%
 	mkdir -p $(dir $@)
 	cp -R $< $@
 
-build/$(APPDIR)-$(VERSION).zip: \
-	$(BUILDROOT)/$(PROJECT).exe \
-	$(subst src/resources/,$(BUILDROOT)/resources/,$(ASSETS))
+build/$(APPDIR)-$(VERSION).zip: build
 	cd build && /c/Program\ Files/7-Zip/7z.exe a -r $(notdir $@) $(APPDIR)
 
-build: build/$(APPDIR)-$(VERSION).zip
+build: \
+	$(BUILDROOT)/$(PROJECT).exe \
+	$(subst src/resources/,$(BUILDROOT)/resources/,$(ASSETS))
+
+package: build/$(APPDIR)-$(VERSION).zip
 
 run: build
-	$(BUILDROOT)/$(PROJECT).exe
+	cd $(BUILDROOT) && $(PROJECT).exe
