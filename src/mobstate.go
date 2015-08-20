@@ -15,11 +15,10 @@
 package main
 
 import (
+	"../lib/twodee"
+	"github.com/go-gl/mathgl/mgl32"
 	"math"
 	"time"
-
-	"../lib/twodee/twodee"
-	"github.com/go-gl/mathgl/mgl32"
 )
 
 type Mob interface {

@@ -15,12 +15,10 @@
 package main
 
 import (
+	"../lib/twodee"
 	"fmt"
-	"time"
-
 	"github.com/go-gl/mathgl/mgl32"
-
-	"../lib/twodee/twodee"
+	"time"
 )
 
 type BossState int32

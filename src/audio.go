@@ -14,7 +14,7 @@
 
 package main
 
-import twodee "../lib/twodee/twodee"
+import twodee "../lib/twodee"
 
 type AudioSystem struct {
 	app                         *Application

@@ -15,7 +15,7 @@
 package main
 
 import (
-	"../lib/twodee/twodee"
+	"../lib/twodee"
 	"fmt"
 	"github.com/go-gl/mathgl/mgl32"
 	"image/color"
